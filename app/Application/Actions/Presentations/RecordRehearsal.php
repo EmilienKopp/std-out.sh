@@ -27,6 +27,7 @@ class RecordRehearsal
         $run = $this->rehearsals->save(new RehearsalEntity(
             presentation_id: $command->presentationId,
             team_id: $command->teamId,
+            user_id: $command->userId,
             started_at: $command->startedAt,
             ended_at: $command->endedAt,
             duration_seconds: $command->durationSeconds,

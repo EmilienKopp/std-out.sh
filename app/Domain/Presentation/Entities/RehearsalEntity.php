@@ -31,6 +31,7 @@ class RehearsalEntity extends BaseEntity
         public ?array $step_events = null,
         public ?int $version_major = null,
         public ?int $version_minor = null,
+        public ?int $user_id = null,
         public ?int $id = null,
     ) {}
 
@@ -41,6 +42,7 @@ class RehearsalEntity extends BaseEntity
             'id' => $this->id,
             'presentation_id' => $this->presentation_id,
             'team_id' => $this->team_id,
+            'user_id' => $this->user_id,
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,
             'duration_seconds' => $this->duration_seconds,

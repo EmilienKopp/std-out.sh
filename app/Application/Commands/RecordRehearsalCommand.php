@@ -15,6 +15,7 @@ readonly class RecordRehearsalCommand
     public function __construct(
         public int $presentationId,
         public int $teamId,
+        public int $userId,
         public DateTimeInterface $startedAt,
         public DateTimeInterface $endedAt,
         public int $durationSeconds,

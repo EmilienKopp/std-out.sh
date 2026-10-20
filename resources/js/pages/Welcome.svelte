@@ -44,7 +44,7 @@
     ];
 </script>
 
-<AppHead title="The stage before the stage" />
+<AppHead title="Where developers get on stage" />
 
 {#snippet ctaButton()}
     {#if auth.user}
@@ -134,10 +134,11 @@
 
         <section class="mt-6 mb-6 max-w-xl text-center">
             <p class="text-lg leading-relaxed text-[hsl(240_5%_75%)]">
-                Talks don't succeed in a vacuum. Tecturn is the stage before
-                the stage: rehearse timed runs, get slide-by-slide reviews
-                from your circle of speakers, then go live to a room that
-                talks back. The deck above is the product doing its own pitch.
+                Nobody gets on stage alone. Tecturn is the path from idea to
+                stage: shape your talk, rehearse timed runs, trade
+                slide-by-slide reviews with the speakers you follow, then go
+                live to a room that talks back. The deck above is the product
+                doing its own pitch.
             </p>
             {@render ctaButton()}
         </section>
@@ -152,10 +153,9 @@
             <p
                 class="mt-4 font-display text-2xl leading-snug font-semibold text-[hsl(40_10%_95%)] sm:text-3xl"
             >
-                Give every technical speaker a stage before the stage: a place
-                to rehearse until the timing is right, a circle of peers who
-                see the talk before the room does, and an audience that talks
-                back.
+                Get every developer with something to say onto a stage: a
+                place to shape and rehearse the talk, a circle of speakers who
+                see it before the room does, and an audience that talks back.
             </p>
             <p class="mt-4">
                 <Link

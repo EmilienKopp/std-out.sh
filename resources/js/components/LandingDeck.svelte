@@ -102,7 +102,7 @@
                     Tecturn<span class="text-[#d97e0a]">.</span>
                 </h1>
                 <p class="text-[3.2cqw] text-[#65656d]">
-                    The stage before the stage.
+                    Your path to the stage.
                 </p>
                 <p class="font-mono text-[1.7cqw] text-[#8d8d94]">
                     (this hero is a live deck, press →)
@@ -264,7 +264,7 @@
                     Take the stage<span class="text-[#f5a623]">.</span>
                 </p>
                 <p class="text-[2.2cqw] text-[#8d8d94]">
-                    Sign in and start your first deck.
+                    Sign in and start your first talk.
                 </p>
             </div>
         </Slide>

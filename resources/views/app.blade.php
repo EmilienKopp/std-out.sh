@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'onair' }}" @class(['dark' => $themeIsDark ?? false])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         @php
-            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'Tecturn').' - The stage for developer talks';
-            $metaDescription = ($metaDescription ?? null) ?: 'Build slides out of blocks, wire their reveal order in a flow graph, and present with live translation and floating audience reactions. A built-in pacing coach keeps your talk on time.';
+            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'Tecturn').' - Where developers get on stage';
+            $metaDescription = ($metaDescription ?? null) ?: 'Tecturn helps developers get on stage: shape your talk, rehearse timed runs, trade reviews with the speakers you follow, and go live to a room that talks back.';
             $metaImage = ($metaImage ?? null) ?: url('/og-image.png');
         @endphp
 

@@ -5,37 +5,20 @@
     import CodeXml from 'lucide-svelte/icons/code-xml';
     import Copy from 'lucide-svelte/icons/copy';
     import Download from 'lucide-svelte/icons/download';
-    import FlaskConical from 'lucide-svelte/icons/flask-conical';
     import GitBranch from 'lucide-svelte/icons/git-branch';
     import Heart from 'lucide-svelte/icons/heart';
     import Languages from 'lucide-svelte/icons/languages';
     import Lock from 'lucide-svelte/icons/lock';
     import PanelBottom from 'lucide-svelte/icons/panel-bottom';
     import PanelRight from 'lucide-svelte/icons/panel-right';
-    import Play from 'lucide-svelte/icons/play';
     import Plus from 'lucide-svelte/icons/plus';
     import QrCode from 'lucide-svelte/icons/qr-code';
     import Save from 'lucide-svelte/icons/save';
     import Settings2 from 'lucide-svelte/icons/settings-2';
     import Smartphone from 'lucide-svelte/icons/smartphone';
     import Timer from 'lucide-svelte/icons/timer';
-    import { toast } from 'svelte-sonner';
     import Confirm from '@/components/feedback/Confirm.svelte';
-    import { Button } from '@/components/ui/button';
-    import {
-        Dialog,
-        DialogContent,
-        DialogDescription,
-        DialogTitle,
-    } from '@/components/ui/dialog';
-    import {
-        DropdownMenu,
-        DropdownMenuContent,
-        DropdownMenuItem,
-        DropdownMenuSeparator,
-        DropdownMenuTrigger,
-    } from '@/components/ui/dropdown-menu';
-    import { Input } from '@/components/ui/input';
+    import PresentMenu from '@/components/PresentMenu.svelte';
     import { promise } from '@/lib/support/async';
     import { ms } from '@/lib/support/time';
     import {
@@ -45,15 +28,14 @@
     import { qrToSvg } from '@/lib/tecturn/CodeGeneration/qr';
     import type { EditorState } from '@/lib/tecturn/editor-state.svelte';
     import { DEFAULT_REACTIONS } from '@/lib/tecturn/reactions';
-    import { edit, present, update } from '@/routes/presentations';
+    import { edit, update } from '@/routes/presentations';
     import { store as storeVersion } from '@/routes/presentations/versions';
     import type {
         DeliveryStats,
         FooterSettings,
         TalkSettings,
     } from '@/types/generated';
-    import Checkbox from '../ui/checkbox/Checkbox.svelte';
-    import Label from '../ui/label/Label.svelte';
+    import { Button, Checkbox, Dropdown, Modal, toast } from 'daisy-svelte';
     import FooterSettingsModal from './FooterSettingsModal.svelte';
     import ReactionsSettingsModal from './ReactionsSettingsModal.svelte';
     import TalkLengthModal from './TalkLengthModal.svelte';
@@ -380,25 +362,6 @@
         }
     };
 
-    const presentUrl = $derived(
-        page.props.currentTeam
-            ? present({
-                  current_team: page.props.currentTeam.slug,
-                  presentation: presentationId,
-              }).url
-            : null,
-    );
-
-    // Same present screen, but `test=1` tells the presenter to skip opening an
-    // analytics session so a rehearsal never pollutes the numbers.
-    const testRunUrl = $derived(presentUrl ? `${presentUrl}?test=1` : null);
-
-    // Rehearsal mode: same screen again, but with a start/stop rehearsal timer
-    // whose runs are saved with a snapshot of the deck.
-    const rehearsalUrl = $derived(
-        presentUrl ? `${presentUrl}?rehearsal=1` : null,
-    );
-
     const save = async () => {
         const currentTeam = page.props.currentTeam;
 
@@ -440,9 +403,10 @@
 </script>
 
 <div class="flex items-center gap-3 border-b px-4 py-2">
-    <Input
+    <input
+        type="text"
+        class="input max-w-xs font-medium"
         bind:value={name}
-        class="max-w-xs font-medium"
         oninput={() => (editor.dirty = true)}
         data-test="editor-presentation-name"
     />
@@ -455,13 +419,12 @@
         >
             <Checkbox
                 id="auto-save-toggle"
-                size="sm"
-                class="text-muted-foreground"
+                class="checkbox-sm text-muted-foreground"
                 data-test="editor-toggle-auto-save"
                 onclick={toggleAutoSave}
                 checked={autoSave}
             />
-            <Label for="auto-save-toggle">Auto Save</Label>
+            <label class="label" for="auto-save-toggle">Auto Save</label>
         </div>
     {/if}
 
@@ -516,309 +479,255 @@
             <Smartphone class="h-4 w-4" /> Remote
         </Button>
 
-        {#if presentUrl}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    {#snippet children(props)}
-                        <Button
-                            {...props}
-                            size="sm"
-                            class="bg-primary text-primary-foreground shadow hover:bg-primary/90"
-                            data-test="editor-present-menu"
-                        >
-                            <Play class="h-4 w-4" /> Present
-                            <ChevronDown class="h-3.5 w-3.5 opacity-60" />
-                        </Button>
-                    {/snippet}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={4} class="w-56">
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <a
-                                class="{props.class} gap-2"
-                                onclick={props.onClick}
-                                href={presentUrl}
-                                target="_blank"
-                                rel="noopener"
-                                data-test="editor-present-link"
-                            >
-                                <Play class="h-4 w-4" />Go Live
-                            </a>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <a
-                                class="{props.class} gap-2"
-                                onclick={props.onClick}
-                                href={testRunUrl}
-                                target="_blank"
-                                rel="noopener"
-                                data-test="editor-test-run-link"
-                            >
-                                <FlaskConical class="h-4 w-4" />Test run
-                            </a>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <a
-                                class="{props.class} gap-2"
-                                onclick={props.onClick}
-                                href={rehearsalUrl}
-                                target="_blank"
-                                rel="noopener"
-                                data-test="editor-rehearse-link"
-                            >
-                                <Timer class="h-4 w-4" />Rehearse
-                            </a>
-                        {/snippet}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        {/if}
+        <PresentMenu {presentationId} testPrefix="editor" />
 
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                {#snippet children(props)}
-                    <Button
-                        {...props}
-                        variant="outline"
-                        size="sm"
-                        data-test="editor-versions-menu"
+        <Dropdown align="end" class="w-64">
+            {#snippet trigger()}
+                <span
+                    class="btn btn-outline btn-sm"
+                    data-test="editor-versions-menu"
+                >
+                    <GitBranch class="h-4 w-4" />
+                    <span class="font-mono text-xs"
+                        >{version ? `v${version}` : 'Versions'}</span
                     >
-                        <GitBranch class="h-4 w-4" />
-                        <span class="font-mono text-xs"
-                            >{version ? `v${version}` : 'Versions'}</span
-                        >
-                        <ChevronDown class="h-3.5 w-3.5 opacity-60" />
-                    </Button>
-                {/snippet}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={4} class="w-64">
+                    <ChevronDown class="h-3.5 w-3.5 opacity-60" />
+                </span>
+            {/snippet}
+            {#snippet children({ close })}
                 {#each versions as deck (deck.id)}
-                    <button
-                        type="button"
-                        role="menuitem"
-                        class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground {deck.current
-                            ? 'font-medium text-primary'
-                            : ''}"
-                        onclick={() => switchVersion(deck.id)}
-                        data-test="editor-version-row"
-                    >
-                        <span class="font-mono text-xs"
-                            >{deck.version ? `v${deck.version}` : '—'}</span
+                    <li>
+                        <button
+                            type="button"
+                            class="gap-2 {deck.current
+                                ? 'font-medium text-primary'
+                                : ''}"
+                            onclick={() => {
+                                close();
+                                switchVersion(deck.id);
+                            }}
+                            data-test="editor-version-row"
                         >
-                        <span class="truncate">{deck.name}</span>
-                        {#if deck.current}
-                            <span
-                                class="ml-auto text-[10px] tracking-wide uppercase"
+                            <span class="font-mono text-xs"
+                                >{deck.version ? `v${deck.version}` : '—'}</span
                             >
-                                current
-                            </span>
-                        {/if}
-                    </button>
+                            <span class="truncate">{deck.name}</span>
+                            {#if deck.current}
+                                <span
+                                    class="ml-auto text-[10px] tracking-wide uppercase"
+                                >
+                                    current
+                                </span>
+                            {/if}
+                        </button>
+                    </li>
                 {/each}
                 {#if versions.length > 0}
-                    <DropdownMenuSeparator />
+                    <li class="border-base-300 my-1 border-t"></li>
                 {/if}
-                <button
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                    disabled={creatingVersion}
-                    onclick={() => createVersion('minor')}
-                    data-test="editor-new-minor-version-menu-item"
-                >
-                    <Plus class="h-4 w-4" />
-                    New minor version
-                </button>
-                <button
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                    disabled={creatingVersion}
-                    onclick={() => createVersion('major')}
-                    data-test="editor-new-major-version-menu-item"
-                >
-                    <Plus class="h-4 w-4" />
-                    New major version
-                </button>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                <li>
+                    <button
+                        type="button"
+                        class="gap-2"
+                        disabled={creatingVersion}
+                        onclick={() => {
+                            close();
+                            createVersion('minor');
+                        }}
+                        data-test="editor-new-minor-version-menu-item"
+                    >
+                        <Plus class="h-4 w-4" />
+                        New minor version
+                    </button>
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        class="gap-2"
+                        disabled={creatingVersion}
+                        onclick={() => {
+                            close();
+                            createVersion('major');
+                        }}
+                        data-test="editor-new-major-version-menu-item"
+                    >
+                        <Plus class="h-4 w-4" />
+                        New major version
+                    </button>
+                </li>
+            {/snippet}
+        </Dropdown>
 
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                {#snippet children(props)}
-                    <Button
-                        {...props}
-                        variant="outline"
-                        size="sm"
-                        data-test="editor-settings-menu"
-                    >
-                        <Settings2 class="h-4 w-4" /> Settings
-                        <ChevronDown class="h-3.5 w-3.5 opacity-60" />
-                    </Button>
-                {/snippet}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={4} class="w-56">
-                <button
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                    onclick={() => (reactionsModalOpen = true)}
-                    data-test="editor-reactions-menu-item"
+        <Dropdown align="end" class="w-56">
+            {#snippet trigger()}
+                <span
+                    class="btn btn-outline btn-sm"
+                    data-test="editor-settings-menu"
                 >
-                    <Heart class="h-4 w-4" />
-                    Reactions…
-                    <span
-                        class="ml-auto text-xs {showReactions
-                            ? 'font-medium text-primary'
-                            : 'text-muted-foreground'}"
+                    <Settings2 class="h-4 w-4" /> Settings
+                    <ChevronDown class="h-3.5 w-3.5 opacity-60" />
+                </span>
+            {/snippet}
+            {#snippet children({ close })}
+                <li>
+                    <button
+                        type="button"
+                        class="gap-2"
+                        onclick={() => {
+                            close();
+                            reactionsModalOpen = true;
+                        }}
+                        data-test="editor-reactions-menu-item"
                     >
-                        {showReactions ? 'On' : 'Off'}
-                    </span>
-                </button>
-                {@render toggleRow(
-                    'Dock',
-                    PanelRight,
-                    showDock,
-                    toggleDock,
-                    'editor-dock-toggle',
-                )}
-                {@render toggleRow(
-                    'Live Translation',
-                    Languages,
-                    showTranslation,
-                    toggleTranslation,
-                    'editor-translation-toggle',
-                )}
-                {@render toggleRow(
-                    'Private talk',
-                    Lock,
-                    presentationPrivate,
-                    togglePrivacy,
-                    'editor-private-toggle',
-                )}
-                <button
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                    onclick={() => (talkLengthModalOpen = true)}
-                    data-test="editor-talk-length-menu-item"
-                >
-                    <Timer class="h-4 w-4" />
-                    Talk length…
-                    <span
-                        class="ml-auto text-xs {durationMinutes
-                            ? 'font-medium text-primary'
-                            : 'text-muted-foreground'}"
+                        <Heart class="h-4 w-4" />
+                        Reactions…
+                        <span
+                            class="ml-auto text-xs {showReactions
+                                ? 'font-medium text-primary'
+                                : 'text-muted-foreground'}"
+                        >
+                            {showReactions ? 'On' : 'Off'}
+                        </span>
+                    </button>
+                </li>
+                <li>
+                    {@render toggleRow(
+                        'Dock',
+                        PanelRight,
+                        showDock,
+                        toggleDock,
+                        'editor-dock-toggle',
+                    )}
+                </li>
+                <li>
+                    {@render toggleRow(
+                        'Live Translation',
+                        Languages,
+                        showTranslation,
+                        toggleTranslation,
+                        'editor-translation-toggle',
+                    )}
+                </li>
+                <li>
+                    {@render toggleRow(
+                        'Private talk',
+                        Lock,
+                        presentationPrivate,
+                        togglePrivacy,
+                        'editor-private-toggle',
+                    )}
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        class="gap-2"
+                        onclick={() => {
+                            close();
+                            talkLengthModalOpen = true;
+                        }}
+                        data-test="editor-talk-length-menu-item"
                     >
-                        {durationMinutes ? `${durationMinutes}m` : 'Off'}
-                    </span>
-                </button>
-                <button
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                    onclick={() => (footerModalOpen = true)}
-                    data-test="editor-footer-menu-item"
-                >
-                    <PanelBottom class="h-4 w-4" />
-                    Footer…
-                    <span
-                        class="ml-auto text-xs {footer.enabled
-                            ? 'font-medium text-primary'
-                            : 'text-muted-foreground'}"
+                        <Timer class="h-4 w-4" />
+                        Talk length…
+                        <span
+                            class="ml-auto text-xs {durationMinutes
+                                ? 'font-medium text-primary'
+                                : 'text-muted-foreground'}"
+                        >
+                            {durationMinutes ? `${durationMinutes}m` : 'Off'}
+                        </span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        class="gap-2"
+                        onclick={() => {
+                            close();
+                            footerModalOpen = true;
+                        }}
+                        data-test="editor-footer-menu-item"
                     >
-                        {footer.enabled ? 'On' : 'Off'}
-                    </span>
-                </button>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                        <PanelBottom class="h-4 w-4" />
+                        Footer…
+                        <span
+                            class="ml-auto text-xs {footer.enabled
+                                ? 'font-medium text-primary'
+                                : 'text-muted-foreground'}"
+                        >
+                            {footer.enabled ? 'On' : 'Off'}
+                        </span>
+                    </button>
+                </li>
+            {/snippet}
+        </Dropdown>
 
         {#if !external}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    {#snippet children(props)}
-                        <Button
-                            {...props}
-                            variant="outline"
-                            size="sm"
-                            data-test="editor-export-menu"
+            <Dropdown align="end" class="w-60">
+                {#snippet trigger()}
+                    <span
+                        class="btn btn-outline btn-sm"
+                        data-test="editor-export-menu"
+                    >
+                        <Download class="h-4 w-4" /> Export
+                        <ChevronDown class="h-3.5 w-3.5 opacity-60" />
+                    </span>
+                {/snippet}
+                {#snippet children({ close })}
+                    <li>
+                        <button
+                            type="button"
+                            onclick={() => {
+                                close();
+                                onExport();
+                            }}
+                            data-test="editor-export-button"
                         >
-                            <Download class="h-4 w-4" /> Export
-                            <ChevronDown class="h-3.5 w-3.5 opacity-60" />
-                        </Button>
-                    {/snippet}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={4} class="w-60">
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <button
-                                type="button"
-                                class={props.class}
-                                onclick={() => {
-                                    props.onClick?.();
-                                    onExport();
-                                }}
-                                data-test="editor-export-button"
-                            >
-                                <Download class="mr-2 h-4 w-4" /> Export Svelte
-                            </button>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <button
-                                type="button"
-                                class={props.class}
-                                disabled={exportingWebComponent}
-                                onclick={() => {
-                                    props.onClick?.();
-                                    exportWebComponent();
-                                }}
-                                data-test="editor-export-web-component-button"
-                            >
-                                <Download class="mr-2 h-4 w-4" />
-                                {exportingWebComponent
-                                    ? 'Exporting…'
-                                    : 'Export Web Component'}
-                            </button>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <button
-                                type="button"
-                                class={props.class}
-                                onclick={() => {
-                                    props.onClick?.();
-                                    onExportJSON();
-                                }}
-                                data-test="editor-export-json-button"
-                            >
-                                <CurlyBraces class="mr-2 h-4 w-4" /> Export JSON
-                            </button>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <button
-                                type="button"
-                                class={props.class}
-                                onclick={() => {
-                                    props.onClick?.();
-                                    copyEmbedSnippet();
-                                }}
-                                data-test="editor-copy-embed-button"
-                            >
-                                <CodeXml class="mr-2 h-4 w-4" /> Copy Embed
-                            </button>
-                        {/snippet}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                            <Download class="mr-2 h-4 w-4" /> Export Svelte
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            disabled={exportingWebComponent}
+                            onclick={() => {
+                                close();
+                                exportWebComponent();
+                            }}
+                            data-test="editor-export-web-component-button"
+                        >
+                            <Download class="mr-2 h-4 w-4" />
+                            {exportingWebComponent
+                                ? 'Exporting…'
+                                : 'Export Web Component'}
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            onclick={() => {
+                                close();
+                                onExportJSON();
+                            }}
+                            data-test="editor-export-json-button"
+                        >
+                            <CurlyBraces class="mr-2 h-4 w-4" /> Export JSON
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            onclick={() => {
+                                close();
+                                copyEmbedSnippet();
+                            }}
+                            data-test="editor-copy-embed-button"
+                        >
+                            <CodeXml class="mr-2 h-4 w-4" /> Copy Embed
+                        </button>
+                    </li>
+                {/snippet}
+            </Dropdown>
         {/if}
 
         <Button
@@ -864,19 +773,14 @@
 
 <!-- Phone-remote pairing QR. Deliberately editor-only: this screen is not the
      one on the projector, so the control credential never reaches the room. -->
-<Dialog
-    open={remoteModalOpen}
-    onOpenChange={(next: boolean) => (remoteModalOpen = next)}
->
-    <DialogContent class="sm:max-w-md">
-        <div class="space-y-3">
-            <DialogTitle>Phone remote</DialogTitle>
-            <DialogDescription>
-                Scan with your phone to get slide controls, quiz buzzers and
-                your speaker notes. Pair here, then press Go Live — anyone who
-                sees this code can drive your deck.
-            </DialogDescription>
-        </div>
+<Modal bind:open={remoteModalOpen} class="sm:max-w-md">
+    {#snippet title()}Phone remote{/snippet}
+    <div class="space-y-3">
+        <p class="text-muted-foreground text-sm">
+            Scan with your phone to get slide controls, quiz buzzers and your
+            speaker notes. Pair here, then press Go Live — anyone who sees this
+            code can drive your deck.
+        </p>
         {#if remoteQrSvg}
             <div
                 class="mx-auto w-64 max-w-full rounded-lg bg-white p-3"
@@ -895,7 +799,8 @@
                 {remoteUrl}
             </code>
             <Button
-                variant="outline"
+                variant="base"
+                outline
                 size="sm"
                 onclick={copyRemoteUrl}
                 title="Copy the remote URL"
@@ -904,5 +809,5 @@
                 <Copy class="h-4 w-4" /> Copy
             </Button>
         </div>
-    </DialogContent>
-</Dialog>
+    </div>
+</Modal>
