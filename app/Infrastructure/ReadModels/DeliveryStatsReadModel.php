@@ -43,7 +43,7 @@ class DeliveryStatsReadModel
             return new DeliveryStats;
         }
 
-        $sessions = SessionAnalyticsView::query()
+        $sessions = array_values(SessionAnalyticsView::query()
             ->where($where)
             ->whereNotNull('ended_at')
             ->get()
@@ -51,9 +51,9 @@ class DeliveryStatsReadModel
                 'seconds' => (int) $session->started_at->diffInSeconds($session->ended_at, true),
                 'wordCount' => $session->word_count,
             ])
-            ->all();
+            ->all());
 
-        $rehearsals = RehearsalHistoryView::query()
+        $rehearsals = array_values(RehearsalHistoryView::query()
             ->where($where)
             ->get()
             ->map(fn (RehearsalHistoryView $run): array => [
@@ -61,7 +61,7 @@ class DeliveryStatsReadModel
                 'wordCount' => $run->word_count,
                 'durationSeconds' => (int) $run->duration_seconds,
             ])
-            ->all();
+            ->all());
 
         return DeliveryStats::fromMeasuredRuns(
             rehearsalCount: $rehearsalCount,

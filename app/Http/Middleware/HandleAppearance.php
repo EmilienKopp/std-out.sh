@@ -39,8 +39,11 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $appearance = $request->cookie('appearance') ?? 'system';
-        $theme = $this->resolveTheme($request->cookie('theme'), $appearance);
+        $appearance = $request->cookie('appearance');
+        $appearance = is_string($appearance) ? $appearance : 'system';
+
+        $themeCookie = $request->cookie('theme');
+        $theme = $this->resolveTheme(is_string($themeCookie) ? $themeCookie : null, $appearance);
 
         View::share('appearance', $appearance);
         View::share('theme', $theme);
