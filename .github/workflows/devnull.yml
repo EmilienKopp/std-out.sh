@@ -1,8 +1,8 @@
 name: /dev/null
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
 
 permissions: {}
 
@@ -13,6 +13,6 @@ jobs:
       - uses: nunomaduro/dev-null.sh/.github/actions/commit@production
         with:
           body: |
-            ${{ github.event.head_commit.message }}
-            ${{ github.event.head_commit.url }}
+            Released ${{ github.event.release.name }}.
+            ${{ github.event.release.html_url }}
           ssh-key: ${{ secrets.DEVNULL_SSH_KEY }}
