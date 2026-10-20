@@ -1,11 +1,11 @@
 <script lang="ts">
+    import { Button, Modal } from 'daisy-svelte';
     import ArrowDown from 'lucide-svelte/icons/arrow-down';
     import ArrowUp from 'lucide-svelte/icons/arrow-up';
     import Plus from 'lucide-svelte/icons/plus';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import { untrack } from 'svelte';
     import CodeEditor from '@/components/tecturn/CodeEditor.svelte';
-    import { Button, Modal } from 'daisy-svelte';
     import { isValidHighlightLines } from '@/lib/tecturn/code-actions';
     import type { EditorState } from '@/lib/tecturn/editor-state.svelte';
 
@@ -97,13 +97,10 @@
         }
     }
 
-    // Modal open state mirrors whether a block is targeted; the $effect keeps
-    // it in sync when the parent opens/closes by setting blockId.
-    let modalOpen = $state(false);
-
-    $effect(() => {
-        modalOpen = block !== null;
-    });
+    // Modal open state mirrors whether a block is targeted; writable $derived
+    // re-syncs when the parent opens/closes by setting blockId while still
+    // allowing bind:open to close the modal.
+    let modalOpen = $derived(block !== null);
 </script>
 
 <Modal bind:open={modalOpen} class="sm:max-w-4xl" onclose={onClose}>
