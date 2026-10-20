@@ -7,7 +7,7 @@ use Splitstack\Rome\Models\ReadOnlyModel;
 /**
  * Per-presentation delivery aggregates across rehearsals and live sessions.
  * Durations that need timestamp arithmetic (session lengths, per-slide
- * timings) are finished in the DeliveryStatsReadModel, keeping this view's
+ * timings) are finished in the DeliveryStatsQuery, keeping this view's
  * SQL portable across the sqlite/postgres pair.
  *
  * @property int $presentation_id

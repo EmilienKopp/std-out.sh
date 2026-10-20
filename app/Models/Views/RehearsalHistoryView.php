@@ -2,6 +2,9 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\RehearsalReplay;
+use App\Application\Projections\TeamRehearsalHistory;
+use App\Application\Projections\TimelineEntry;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
@@ -82,5 +85,63 @@ class RehearsalHistoryView extends ReadOnlyModel
             'pending_review_count' => 'integer',
             'completed_review_count' => 'integer',
         ];
+    }
+
+    public function toTeamRehearsalHistory(): TeamRehearsalHistory
+    {
+        return new TeamRehearsalHistory(
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            duration_seconds: $this->duration_seconds,
+            slide_count: count($this->content['slides'] ?? []),
+            slide_timings: $this->slideTimings(),
+            version: $this->versionLabel(),
+        );
+    }
+
+    /** The deck's "2.1"-style version at the moment of the run, or null. */
+    public function versionLabel(): ?string
+    {
+        if ($this->version_major === null || $this->version_minor === null) {
+            return null;
+        }
+
+        return $this->version_major.'.'.$this->version_minor;
+    }
+
+    public function toRehearsalReplay(): RehearsalReplay
+    {
+        return new RehearsalReplay(
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            ended_at: $this->ended_at->toISOString(),
+            duration_seconds: $this->duration_seconds,
+            slide_timings: $this->slideTimings(),
+            step_events: $this->stepEvents(),
+            has_recording: $this->has_recording,
+            content: $this->content,
+            flow: $this->flow,
+            version: $this->versionLabel(),
+        );
+    }
+
+    public function toTimelineEntry(): TimelineEntry
+    {
+        return new TimelineEntry(
+            type: 'rehearsal',
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            duration_seconds: $this->duration_seconds,
+            is_live: false,
+            viewer_count: 0,
+            reaction_total: 0,
+            reaction_counts: [],
+        );
     }
 }

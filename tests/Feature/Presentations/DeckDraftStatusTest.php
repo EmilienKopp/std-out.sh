@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use App\Application\Commands\GenerateDeckFromPlanCommand;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Jobs\GenerateDeckJob;
 use App\Models\Presentation;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 
-test('the read model reports a draft status for each deck', function () {
+test('the presentation query reports a draft status for each deck', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;
 
@@ -17,14 +17,14 @@ test('the read model reports a draft status for each deck', function () {
     $generating = Presentation::factory()->generatingDraft()->create(['team_id' => $team->id]);
     $failed = Presentation::factory()->failedDraft('boom')->create(['team_id' => $team->id]);
 
-    $rows = collect(app(PresentationReadModel::class)->listForTeam($team->id))
+    $rows = collect(app(PresentationQuery::class)->listForTeam($team->id))
         ->keyBy('id');
 
-    expect($rows[$ready->id]['status'])->toBe('ready')
-        ->and($rows[$ready->id]['draft_error'])->toBeNull()
-        ->and($rows[$generating->id]['status'])->toBe('generating')
-        ->and($rows[$failed->id]['status'])->toBe('failed')
-        ->and($rows[$failed->id]['draft_error'])->toBe('boom');
+    expect($rows[$ready->id]->status)->toBe('ready')
+        ->and($rows[$ready->id]->draft_error)->toBeNull()
+        ->and($rows[$generating->id]->status)->toBe('generating')
+        ->and($rows[$failed->id]->status)->toBe('failed')
+        ->and($rows[$failed->id]->draft_error)->toBe('boom');
 });
 
 test('retrying a failed draft resets it and re-dispatches the build', function () {

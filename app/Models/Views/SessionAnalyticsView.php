@@ -2,6 +2,9 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\RecentSession;
+use App\Application\Projections\SessionDetail;
+use App\Application\Projections\TimelineEntry;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
@@ -43,5 +46,86 @@ class SessionAnalyticsView extends ReadOnlyModel
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Wall-clock length of the session; live sessions count up to the last
+     * heartbeat seen.
+     */
+    public function durationSeconds(): int
+    {
+        $end = $this->ended_at ?? $this->last_seen_at ?? $this->started_at;
+
+        return max(0, $end->getTimestamp() - $this->started_at->getTimestamp());
+    }
+
+    /**
+     * The most-used emoji in a reaction tally, or null when there were none.
+     *
+     * @param  array<string, int>  $counts
+     */
+    public static function topEmoji(array $counts): ?string
+    {
+        if ($counts === []) {
+            return null;
+        }
+
+        return array_key_first(
+            array_filter($counts, fn (int $count): bool => $count === max($counts))
+        );
+    }
+
+    public function toSessionDetail(): SessionDetail
+    {
+        return new SessionDetail(
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            ended_at: $this->ended_at?->toISOString(),
+            is_live: $this->ended_at === null,
+            duration_seconds: $this->ended_at !== null
+                ? (int) $this->started_at->diffInSeconds($this->ended_at, true)
+                : (int) $this->started_at->diffInSeconds(now(), true),
+            viewer_count: $this->viewer_count,
+            reaction_total: $this->reaction_total,
+            reaction_counts: $this->reaction_counts ?? [],
+            word_count: $this->word_count,
+            slide_timings: $this->slide_timings ?? [],
+            reaction_slides: $this->reaction_slides ?? [],
+        );
+    }
+
+    public function toTimelineEntry(): TimelineEntry
+    {
+        return new TimelineEntry(
+            type: 'session',
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            duration_seconds: $this->durationSeconds(),
+            is_live: $this->ended_at === null,
+            viewer_count: $this->viewer_count,
+            reaction_total: $this->reaction_total,
+            reaction_counts: $this->reaction_counts ?? [],
+        );
+    }
+
+    public function toRecentSession(): RecentSession
+    {
+        return new RecentSession(
+            id: $this->id,
+            presentation_id: $this->presentation_id,
+            presentation_name: $this->presentation_name,
+            started_at: $this->started_at->toISOString(),
+            ended_at: $this->ended_at?->toISOString(),
+            duration_seconds: $this->durationSeconds(),
+            is_live: $this->ended_at === null,
+            viewer_count: $this->viewer_count,
+            reaction_total: $this->reaction_total,
+            reaction_counts: $this->reaction_counts ?? [],
+            top_emoji: self::topEmoji($this->reaction_counts ?? []),
+        );
     }
 }

@@ -2,6 +2,11 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\IncomingReviewRequest;
+use App\Application\Projections\OutgoingReviewRequest;
+use App\Application\Projections\ReviewComment;
+use App\Application\Projections\ReviewSummary;
+use App\Application\Projections\RunReview;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
@@ -59,5 +64,60 @@ class RehearsalReviewDetailView extends ReadOnlyModel
     public function scopePendingLast(Builder $query): Builder
     {
         return $query->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")->orderByDesc('created_at');
+    }
+
+    public function toIncomingReviewRequest(): IncomingReviewRequest
+    {
+        return new IncomingReviewRequest(
+            id: $this->id,
+            practice_run_id: $this->practice_run_id,
+            presentation_name: $this->presentation_name,
+            requester_name: $this->requester_name,
+            requester_avatar: $this->requester_avatar,
+            status: $this->status,
+            rehearsed_at: $this->rehearsed_at->toISOString(),
+            duration_seconds: $this->duration_seconds,
+            requested_at: $this->created_at?->toISOString(),
+        );
+    }
+
+    public function toOutgoingReviewRequest(): OutgoingReviewRequest
+    {
+        return new OutgoingReviewRequest(
+            id: $this->id,
+            practice_run_id: $this->practice_run_id,
+            presentation_name: $this->presentation_name,
+            reviewer_name: $this->reviewer_name,
+            reviewer_avatar: $this->reviewer_avatar,
+            status: $this->status,
+            rehearsed_at: $this->rehearsed_at->toISOString(),
+            duration_seconds: $this->duration_seconds,
+            requested_at: $this->created_at?->toISOString(),
+        );
+    }
+
+    public function toReviewSummary(): ReviewSummary
+    {
+        return new ReviewSummary(
+            id: $this->id,
+            reviewer_name: $this->reviewer_name,
+            reviewer_avatar: $this->reviewer_avatar,
+            status: $this->status,
+            requested_at: $this->created_at?->toISOString(),
+        );
+    }
+
+    /** @param array<int, ReviewComment> $comments */
+    public function toRunReview(array $comments): RunReview
+    {
+        return new RunReview(
+            id: $this->id,
+            reviewer_user_id: $this->reviewer_user_id,
+            reviewer_name: $this->reviewer_name,
+            reviewer_avatar: $this->reviewer_avatar,
+            status: $this->status,
+            requested_at: $this->created_at?->toISOString(),
+            comments: $comments,
+        );
     }
 }

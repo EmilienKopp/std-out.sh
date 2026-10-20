@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Contacts\IndexContactsRequest;
-use App\Infrastructure\ReadModels\ContactsReadModel;
+use App\Infrastructure\Queries\ContactsQuery;
 use App\Support\Features;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -11,7 +11,7 @@ use Inertia\Response;
 class ContactsController extends Controller
 {
     public function __construct(
-        private readonly ContactsReadModel $contacts,
+        private readonly ContactsQuery $contacts,
     ) {}
 
     public function __invoke(IndexContactsRequest $request): Response

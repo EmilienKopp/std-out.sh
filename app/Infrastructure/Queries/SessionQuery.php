@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\ReadModels;
+namespace App\Infrastructure\Queries;
 
+use App\Application\Projections\SessionDetail;
 use App\Models\Views\RehearsalHistoryView;
 use App\Models\Views\SessionAnalyticsView;
 
-class SessionReadModel
+class SessionQuery
 {
     /**
      * One live session in full, plus the rehearsal baseline of the same deck
      * so the detail page can compare live per-slide time against practice.
      *
      * @return array{
-     *     session: array<string, mixed>,
+     *     session: SessionDetail,
      *     rehearsedSeconds: array<int, int>,
      *     rehearsalCount: int
      * }|null
@@ -30,23 +31,7 @@ class SessionReadModel
         [$rehearsedSeconds, $rehearsalCount] = $this->rehearsedSecondsPerSlide($session->presentation_id);
 
         return [
-            'session' => [
-                'id' => $session->id,
-                'presentation_id' => $session->presentation_id,
-                'presentation_name' => $session->presentation_name,
-                'started_at' => $session->started_at->toISOString(),
-                'ended_at' => $session->ended_at?->toISOString(),
-                'is_live' => $session->ended_at === null,
-                'duration_seconds' => $session->ended_at !== null
-                    ? (int) $session->started_at->diffInSeconds($session->ended_at, true)
-                    : (int) $session->started_at->diffInSeconds(now(), true),
-                'viewer_count' => $session->viewer_count,
-                'reaction_total' => $session->reaction_total,
-                'reaction_counts' => $session->reaction_counts ?? [],
-                'word_count' => $session->word_count,
-                'slide_timings' => $session->slide_timings ?? [],
-                'reaction_slides' => $session->reaction_slides ?? [],
-            ],
+            'session' => $session->toSessionDetail(),
             'rehearsedSeconds' => $rehearsedSeconds,
             'rehearsalCount' => $rehearsalCount,
         ];

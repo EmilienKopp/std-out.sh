@@ -7,7 +7,7 @@ namespace App\Domain\Presentation\ValueObjects;
 /**
  * Read-side shape of the YoYoTranslate session state sent to the presenter
  * page. Property names are snake_case to match the Inertia payload built by
- * PresentationReadModel::findForPresent().
+ * PresentationQuery::findForPresent().
  */
 readonly class YoYoTranslateInfo
 {

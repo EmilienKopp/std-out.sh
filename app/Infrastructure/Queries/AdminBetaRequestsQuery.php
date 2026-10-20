@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\ReadModels;
+namespace App\Infrastructure\Queries;
 
+use App\Application\Projections\ReviewableBetaRequest;
 use App\Models\User;
 use App\Models\Views\AdminBetaRequestView;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class AdminBetaRequestsReadModel
+class AdminBetaRequestsQuery
 {
     /**
      * How long a request lingers after its requester has an account before it
@@ -31,8 +31,10 @@ class AdminBetaRequestsReadModel
      *
      * The account correlation lives in PHP rather than the SQL view because the
      * stored email is non-deterministic ciphertext, so it can't be joined on.
+     * That cross-row lookup is also why the projection is built here instead of
+     * by a mapper on the view.
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, ReviewableBetaRequest>
      */
     public function all(): array
     {
@@ -40,26 +42,28 @@ class AdminBetaRequestsReadModel
             ->orderByDesc('created_at')
             ->get()
             ->map(fn (AdminBetaRequestView $request): array => [
-                'id' => $request->id,
-                'name' => $request->name,
+                'row' => $request,
                 'email' => $this->decryptEmail($request->email),
-                'message' => $request->message,
-                'status' => $request->status->value,
-                'created_at' => $request->created_at?->toISOString(),
             ]);
 
         $accounts = $this->accountsFor($requests->pluck('email'));
         $staleAfter = now()->subWeeks(self::STALE_AFTER_WEEKS);
 
         return $requests
-            ->map(function (array $request) use ($accounts): array {
-                $request['registered_at'] = $accounts->get(Str::lower($request['email']));
-                $request['registered'] = $request['registered_at'] !== null;
-
-                return $request;
-            })
+            ->map(fn (array $request): array => [
+                ...$request,
+                'registered_at' => $accounts->get(Str::lower($request['email'])),
+            ])
             ->reject(fn (array $request): bool => $request['registered_at']?->lt($staleAfter) ?? false)
-            ->map(fn (array $request): array => Arr::except($request, 'registered_at'))
+            ->map(fn (array $request): ReviewableBetaRequest => new ReviewableBetaRequest(
+                id: $request['row']->id,
+                name: $request['row']->name,
+                email: $request['email'],
+                message: $request['row']->message,
+                status: $request['row']->status->value,
+                created_at: $request['row']->created_at?->toISOString(),
+                registered: $request['registered_at'] !== null,
+            ))
             ->values()
             ->all();
     }

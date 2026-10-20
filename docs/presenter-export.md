@@ -23,7 +23,7 @@ The frontend "Export Svelte" button is unchanged and stays client-side.
 
 Export is a **read operation** (no mutation), so per ARCHITECTURE.md:
 
-- No Action class — the controller reads via `PresentationReadModel::findForEditor()`
+- No Action class — the controller reads via `PresentationQuery::findForEditor()`
 - `PresentationContent::fromArray($data['content'])` reconstructs the domain VO
 - Authorization via route-bound `Presentation` + existing `PresentationPolicy`
 
@@ -39,7 +39,7 @@ The `app/Presentation/` namespace (distinct from `app/Domain/Presentation/`) hos
 | `app/Presentation/Presenters/NodePresenter.php` | Single implementation for both formats — pipes `{format, content}` JSON into `scripts/present.mjs` via `Symfony\Component\Process` |
 | `app/Presentation/PresenterFactory.php` | `make(ExportFormat): Presenter` match expression |
 | `app/Http/Requests/Presentations/ExportPresentationRequest.php` | Validates `format` (`Rule::enum`), exposes `exportFormat()` |
-| `app/Http/Controllers/Presentations/ExportPresentationController.php` | Thin: authorize → ReadModel → Factory → `streamDownload()` |
+| `app/Http/Controllers/Presentations/ExportPresentationController.php` | Thin: authorize → Query → Factory → `streamDownload()` |
 | `scripts/present.mjs` | Node subprocess: stdin JSON → codegen.ts → (optionally) Vite custom-element build → stdout |
 | Route | `GET /{current_team}/presentations/{presentation}/export?format=…` (`presentations.export`) |
 

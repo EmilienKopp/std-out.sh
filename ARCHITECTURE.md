@@ -14,7 +14,7 @@ Write side:
 HTTP Layer → Action Layer → Domain Layer → Repository Layer → Tables (DB)
 
 Read side:
-HTTP Layer → ReadModel Layer → Views (DB)
+HTTP Layer → Query Layer → Views (DB)
 
      ↕ (via Inertia)
 Frontend (Svelte 5 / Inertia)
@@ -23,7 +23,7 @@ Frontend (Svelte 5 / Inertia)
 **The fundamental split:**
 
 - Need to load an aggregate and do something to it → **Repository + Action**
-- Need shaped data for a view → **ReadModel**
+- Need shaped data for a view → **Query**
 
 Each layer has a single responsibility. Do not bleed logic across layers.
 
@@ -66,9 +66,9 @@ wrapping them in a service. This is a deliberate tradeoff documented here so it 
 The database layer is split along the same CQRS boundary:
 
 - **Tables** are touched only by Repositories (via Eloquent Models)
-- **Views** are read only by ReadModels (via `ReadOnlyModel`)
+- **Views** are read only by Queries (via `ReadOnlyModel`)
 
-This is a mechanical enforcement of the boundary: if it's a view, it's a ReadModel concern;
+This is a mechanical enforcement of the boundary: if it's a view, it's a Query concern;
 if it's a table, it's a Repository concern. When you need a new read shape, create the view
 first — the schema forces you to design the read model explicitly.
 
@@ -82,12 +82,12 @@ migrations. Never mix view DDL into table migration files.
 ### 1. Controllers (`app/Http/Controllers/`)
 
 - **Thin only.** Controllers orchestrate; they do not contain business logic.
-- Resolve input from the request, call an Action or ReadModel, return an Inertia response or redirect.
-- Use **constructor injection** for Actions and ReadModels.
+- Resolve input from the request, call an Action or Query, return an Inertia response or redirect.
+- Use **constructor injection** for Actions and Queries.
 - Always validate with a dedicated `FormRequest` class — never inline validation.
 - Return `Inertia::render()` for page renders, `redirect()->route()` for post-action redirects.
 - Controllers must not know about domain entities directly — they pass validated scalars or DTOs
-  to Actions and receive whatever the Action or ReadModel returns.
+  to Actions and receive whatever the Action or Query returns.
 
 **Controller shape:**
 
@@ -103,7 +103,7 @@ migrations. Never mix view DDL into table migration files.
 **Injection pattern by operation type:**
 
 - Mutation → inject Action(s)
-- Read → inject ReadModel(s)
+- Read → inject Query(s)
 - Mixed resource controller (reads + mutations) → inject both
 
 ```php
@@ -111,14 +111,14 @@ migrations. Never mix view DDL into table migration files.
 class DailyLogController extends Controller
 {
     public function __construct(
-        private readonly DailyLogReadModel $readModel,
+        private readonly DailyLogQuery $query,
         private readonly CreateDailyLog $createDailyLog,
     ) {}
 
     public function index(): Response
     {
         return Inertia::render('daily-logs/Index', [
-            'logs' => $this->readModel->forDashboard(Auth::id(), today()),
+            'logs' => $this->query->forDashboard(Auth::id(), today()),
         ]);
     }
 
@@ -171,7 +171,7 @@ Actions are the write side of the application layer. They represent a single bus
   feature, not an infrastructure concern to abstract.
 - Must not know about HTTP, sessions, or `Auth::` — resolved by the controller before calling.
 - **Actions are write-only.** If an Action only reads and returns data without mutating anything,
-  it belongs in a ReadModel instead.
+  it belongs in a Query instead.
 - **Actions do not have interfaces.** A `StopTimerInterface` with one implementation is ceremony
   with no benefit. Add an interface only if a concrete second implementation exists. YAGNI applies.
 
@@ -200,7 +200,7 @@ class GetDashboardLogs
 {
     public function execute(int $userId): array
     {
-        // This is a ReadModel, not an Action
+        // This is a Query, not an Action
     }
 }
 ```
@@ -357,7 +357,7 @@ reading and writing, but exclusively via **tables** — never views.
 **Implementations** live in `app/Infrastructure/Persistence/Repositories/`.
 
 - All repository interfaces are defined in the Domain layer — dependency direction flows inward.
-- Repositories touch **tables only**. Views are ReadModel territory.
+- Repositories touch **tables only**. Views are Query territory.
 - Repositories follow aggregate root boundaries — one Repository per aggregate root, no exceptions.
   Child entities have no repository; they are always loaded through their parent.
 - Hydration is done via a `HasDomainEntity` trait on the Eloquent Model — no standalone Mapper
@@ -417,18 +417,29 @@ class EloquentDailyLogRepository implements DailyLogRepository
 
 ---
 
-### 8. ReadModels (`app/Infrastructure/ReadModels/`)
+### 8. Queries (`app/Infrastructure/Queries/`)
 
-ReadModels are the read side of the CQRS split. They query **views only** and return shaped data
+Queries are the read side of the CQRS split. They query **views only** and return shaped data
 directly for the HTTP layer — no domain entities, no hydration, no business rules.
 
-- Named after the aggregate area they cover: `DailyLogReadModel`, `ProjectReadModel`.
+- Named after the aggregate area they cover: `DailyLogQuery`, `ProjectQuery`.
 - One class per aggregate area with multiple methods — never one class per query.
 - Methods named after their purpose: `forDashboard()`, `paginateByUser()`, `summaryForReport()`.
-- Return arrays, simple DTOs, or `LengthAwarePaginator` — whatever the controller needs.
+- Return arrays, Projections, or `LengthAwarePaginator` — whatever the controller needs.
+- When a query result deserves a named shape, define a **Projection** in
+  `app/Application/Projections/` — extend the `Projection` base (which extends
+  laravel-data's `Data`), no suffix, named after what it represents
+  (`TeamRehearsalHistory`). The view-backed model maps itself via a `to{Projection}()`
+  method so Queries don't hand-write field mapping; cross-view or config-dependent
+  shapes are assembled in the Query instead. Projections are the only Application
+  classes the read side (Models, Infrastructure) may depend on — never Actions or
+  Commands (enforced by phparkitect). Keep them behavior-free data carriers.
+- When the view's columns already match the page 1:1 (give or take date formatting,
+  which Inertia's serializer handles), skip the mapping and return the view-backed
+  models as-is.
 - Use `ReadOnlyModel` (from `splitstack/laravel-rome`) as the Eloquent base for view-backed models.
 - May use Eloquent or `DB::` query builder freely — they are Infrastructure, no restrictions apply.
-- **Never define `toEntity()`** — ReadModels produce view data, not domain aggregates. If you need
+- **Never define `toEntity()`** — Queries produce view data, not domain aggregates. If you need
   an entity, you are in Repository territory.
 - No interface by default. Add one only if the same read contract is shared across multiple callers
   or you need a test seam. This is the exception, not the rule.
@@ -440,8 +451,8 @@ class DailyLogSummaryModel extends ReadOnlyModel
     protected $table = 'v_daily_log_summaries'; // DB view
 }
 
-// ReadModel — queries views, returns shaped data
-class DailyLogReadModel
+// Query — queries views, returns shaped data
+class DailyLogQuery
 {
     public function forDashboard(int $userId, DateTimeInterface $date): array
     {
@@ -461,8 +472,8 @@ class DailyLogReadModel
     }
 }
 
-// WRONG — ReadModel touching a table
-class DailyLogReadModel
+// WRONG — Query touching a table
+class DailyLogQuery
 {
     public function forDashboard(int $userId): array
     {
@@ -470,8 +481,8 @@ class DailyLogReadModel
     }
 }
 
-// WRONG — ReadModel producing an entity
-class DailyLogReadModel
+// WRONG — Query producing an entity
+class DailyLogQuery
 {
     public function find(int $id): DailyLogEntity // ← use Repository::findById() instead
     {
@@ -527,7 +538,8 @@ Only use `fetch` when:
 | Repository Implementations | `Eloquent{Noun}Repository`                   | `EloquentDailyLogRepository`                          |
 | Eloquent Models (tables)   | `Noun` (no suffix)                           | `Presentation`, `Rehearsal`, `ReviewComment`          |
 | Eloquent Models (views)    | `NounSummary` / `NounView`                   | `DailyLogSummary`, `ProjectSummary`                   |
-| ReadModels                 | `NounReadModel`                              | `DailyLogReadModel`, `ProjectReadModel`               |
+| Projections                | `Noun` / descriptive, no suffix               | `TeamRehearsalHistory`                                |
+| Queries                 | `NounQuery`                              | `DailyLogQuery`, `ProjectQuery`               |
 | Controllers (CRUD)         | `NounController` (resource methods)          | `PresentationController`, `RehearsalController`       |
 | Controllers (non-CRUD)     | `VerbNounController` (invokable)             | `StopTimerController`, `GenerateDeckController`       |
 | Form Requests              | `VerbNounRequest`                            | `StopTimerRequest`, `CreateProjectRequest`            |
@@ -546,15 +558,17 @@ at the cost of PSR convention. Do not "correct" this to camelCase.
 
 ```
 Domain        → nothing (plain PHP, no framework imports)
-Application   → Domain only
-Infrastructure → Domain interfaces (implements them), Laravel internals allowed
-Http          → Application (Actions, Commands), Infrastructure (ReadModels), Laravel allowed
+Application   → Domain only (Projections depend on nothing)
+Infrastructure → Domain interfaces (implements them), Application\Projections, Laravel internals allowed
+Http          → Application (Actions, Commands), Infrastructure (Queries), Laravel allowed
 ```
 
 The Domain layer is the strict boundary. Everything else may use Laravel freely.
 
-ReadModels sit in Infrastructure and are injected directly into Controllers — there is no
-Application layer intermediary on the read side. This is intentional.
+Queries sit in Infrastructure and are injected directly into Controllers — there is no
+Application layer intermediary on the read side. This is intentional. (Projections in
+`app/Application/Projections/` are shapes, not an intermediary — pure data classes with
+no behavior and no dependencies.)
 
 ---
 
@@ -590,9 +604,9 @@ Discovery is not automatic — add directories in `config/typegen.php`.
 
 1. **View** — create a DB view migration in `database/views/`.
 2. **View-backed model** — create a `ReadOnlyModel` in `app/Models/Views/`.
-3. **ReadModel** — add a method to the relevant `NounReadModel` in `app/Infrastructure/ReadModels/`,
+3. **Query** — add a method to the relevant `NounQuery` in `app/Infrastructure/Queries/`,
    or create one if none exists for this aggregate area.
-4. **Controller** — inject the ReadModel, call the method, pass result to Inertia
+4. **Controller** — inject the Query, call the method, pass result to Inertia
    (resource method on the `NounController` for CRUD reads like `index`/`show`).
 5. **Route** — register in `routes/web.php`.
 6. **Frontend** — build or update the Svelte page/component.
@@ -605,15 +619,15 @@ Discovery is not automatic — add directories in `config/typegen.php`.
 - **Fat controllers** — no business logic in controllers, ever.
 - **Eloquent in Actions** — Actions must not import or query Eloquent models directly.
 - **Domain importing Laravel** — domain entities and value objects are plain PHP only.
-- **Actions that only read** — if there is no mutation, use a ReadModel directly from the controller.
+- **Actions that only read** — if there is no mutation, use a Query directly from the controller.
 - **Ceremony interfaces on Actions** — a `StopTimerInterface` with one implementation is indirection
   without substitution. Don't add it.
-- **ReadModels touching tables** — ReadModels read from views only. If you need table access,
+- **Queries touching tables** — Queries read from views only. If you need table access,
   use a Repository.
-- **Repositories touching views** — views are ReadModel territory. Repositories touch tables only.
-- **`toEntity()` on a view-backed model** — ReadModels produce shaped data, not domain aggregates.
+- **Repositories touching views** — views are Query territory. Repositories touch tables only.
+- **`toEntity()` on a view-backed model** — Queries produce shaped data, not domain aggregates.
   If you need an entity, use the Repository.
-- **One ReadModel class per query** — ReadModels are scoped to an aggregate area, not to a consumer
+- **One Query class per query** — Queries are scoped to an aggregate area, not to a consumer
   or a single query. Add a method, don't create a new class.
 - **Standalone Mapper classes** — use the `HasDomainEntity` trait on Eloquent Models instead.
 - **Wrapping stable Laravel primitives** — `Collection`, `LengthAwarePaginator`, `Context`
@@ -623,7 +637,7 @@ Discovery is not automatic — add directories in `config/typegen.php`.
 - **Cross-domain entity imports** — reference other domains by ID value objects only; the one
   exception is `app/Domain/Shared/ValueObjects/`.
 - **`DB::` raw queries in Repositories** — use Eloquent; reserve query builder for genuinely
-  complex cases and keep those in ReadModels where the restriction does not apply.
+  complex cases and keep those in Queries where the restriction does not apply.
 - **`env()` outside config files** — use `config('key')` everywhere in application code.
 - **Side effects in domain entities** — entities raise no events, call no services, touch no
   infrastructure; they compute and enforce invariants only.

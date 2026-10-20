@@ -252,12 +252,12 @@ This project uses three first-party packages from `splitstack/`. Use them as des
 
 Key constraints (non-exhaustive — always read the full doc):
 
-- **Pragmatic CQRS** — writes: HTTP → Action → Domain → Repository → tables. Reads: HTTP → ReadModel → DB views. Do not bleed logic across layers or across the read/write boundary.
-- **Thin controllers** — validate via `FormRequest`, call one Action (write) or ReadModel (read), return Inertia response or redirect. Never inject repositories into controllers. No business logic ever.
+- **Pragmatic CQRS** — writes: HTTP → Action → Domain → Repository → tables. Reads: HTTP → Query → DB views. Do not bleed logic across layers or across the read/write boundary.
+- **Thin controllers** — validate via `FormRequest`, call one Action (write) or Query (read), return Inertia response or redirect. Never inject repositories into controllers. No business logic ever.
 - **Actions** (`app/Application/Actions/`) — write-only, single `execute()` taking a Command DTO (`app/Application/Commands/`), return domain entities or scalars, never touch Eloquent directly, no interfaces (YAGNI).
-- **ReadModels** (`app/Infrastructure/ReadModels/`) — query DB views only, via `ReadOnlyModel` (splitstack/laravel-rome) backed models. View migrations live in `database/views/`, never mixed into table migrations.
+- **Queries** (`app/Infrastructure/Queries/`) — query DB views only, via `ReadOnlyModel` (splitstack/laravel-rome) backed models. View migrations live in `database/views/`, never mixed into table migrations.
 - **Domain is pure PHP** — entities and value objects have no Laravel facades, no Eloquent imports, no side effects.
-- **Eloquent models** (`app/Models/`, `Noun` with no suffix) — persistence detail only, never passed across layers. Repositories touch tables only; views belong to ReadModels.
+- **Eloquent models** (`app/Models/`, `Noun` with no suffix) — persistence detail only, never passed across layers. Repositories touch tables only; views belong to Queries.
 - **Repositories** — interfaces in `app/Domain/{Domain}/Contracts/`, implementations in `app/Infrastructure/Persistence/Repositories/`. Always inject the interface; bind in `RepositoryServiceProvider`.
 - **New feature order** — Domain → Contract → Implementation → DI binding → Command → Action → Event → FormRequest → Controller → Route → Frontend → Tests (see ARCHITECTURE.md checklist).
 - **Type generation** — the real command is `php artisan typewriter:typegen` with `config/typewriter.php` (ARCHITECTURE.md's `split:typegen`/`config/typegen.php` reference is outdated).

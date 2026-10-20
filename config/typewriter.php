@@ -26,14 +26,14 @@ return [
             'exclude' => [],
         ],
         'dtos' => [
-            'directories' => ['Domain/DTOs', 'Http/Resources'],
+            'directories' => ['Domain/DTOs', 'Http/Resources', 'Application/Projections'],
             'include' => ['*'],
             'exclude' => [],
         ],
         'packets' => [
             'directories' => ['Domain/Packets', 'Http/Packets'],
-            'enums'       => ['Domain/Enums'],
-            'enabled'     => false,
+            'enums' => ['Domain/Enums'],
+            'enabled' => false,
         ],
     ],
 
@@ -46,11 +46,11 @@ return [
     */
     'output' => [
         'value_objects' => resource_path('js/types/generated/value-objects.ts'),
-        'dtos'          => resource_path('js/types/generated/dtos.ts'),
-        'packets'       => resource_path('js/types/generated/packets.ts'),
+        'dtos' => resource_path('js/types/generated/dtos.ts'),
+        'packets' => resource_path('js/types/generated/packets.ts'),
         // The default barrel path would overwrite the hand-written
         // resources/js/types/index.ts app barrel.
-        'barrel'        => resource_path('js/types/generated/index.ts'),
+        'barrel' => resource_path('js/types/generated/index.ts'),
     ],
 
     /*

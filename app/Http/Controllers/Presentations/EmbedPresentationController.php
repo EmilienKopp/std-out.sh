@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Presentations;
 use App\Domain\Presentation\ValueObjects\FlowGraph;
 use App\Domain\Presentation\ValueObjects\PresentationContent;
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Presentation;
 use App\Presentation\EmbedCache;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class EmbedPresentationController extends Controller
 {
     public function __construct(
-        private readonly PresentationReadModel $presentations,
+        private readonly PresentationQuery $presentations,
         private readonly EmbedCache $embeds,
     ) {}
 
@@ -32,8 +32,8 @@ class EmbedPresentationController extends Controller
 
             $path = $this->embeds->store(
                 $presentation->embed_token,
-                PresentationContent::fromArray($data['content']),
-                $data['flow'] !== null ? FlowGraph::fromArray($data['flow']) : null,
+                PresentationContent::fromArray($data->content),
+                $data->flow !== null ? FlowGraph::fromArray($data->flow) : null,
             );
         }
 

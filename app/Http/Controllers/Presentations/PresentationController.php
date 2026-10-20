@@ -17,8 +17,8 @@ use App\Domain\Presentation\ValueObjects\TalkSettings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Presentations\CreatePresentationRequest;
 use App\Http\Requests\Presentations\UpdatePresentationRequest;
-use App\Infrastructure\ReadModels\DeliveryStatsReadModel;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\DeliveryStatsQuery;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Presentation;
 use App\Models\Team;
 use App\Presentation\EmbedCache;
@@ -31,8 +31,8 @@ use Inertia\Response;
 class PresentationController extends Controller
 {
     public function __construct(
-        private readonly PresentationReadModel $presentations,
-        private readonly DeliveryStatsReadModel $deliveryStats,
+        private readonly PresentationQuery $presentations,
+        private readonly DeliveryStatsQuery $deliveryStats,
         private readonly EmbedCache $embeds,
         private readonly CreatePresentation $createPresentation,
         private readonly UpdatePresentation $updatePresentation,

@@ -2,6 +2,7 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\ScheduledTalkEvent;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
@@ -32,5 +33,19 @@ class CalendarEventView extends ReadOnlyModel
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    public function toScheduledTalkEvent(): ScheduledTalkEvent
+    {
+        return new ScheduledTalkEvent(
+            id: $this->id,
+            name: $this->name,
+            date: $this->date->toDateString(),
+            start_time: $this->start_time !== null
+                ? substr($this->start_time, 0, 5)
+                : null,
+            talk_id: $this->talk_id,
+            talk_title: $this->talk_title,
+        );
     }
 }

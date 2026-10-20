@@ -4,7 +4,7 @@ Tecturn is a presentation design and delivery tool. You design slides out of **b
 
 ## 1. Backend (Laravel)
 
-The backend follows a pragmatic CQRS layering: writes go through Actions and a Repository, reads go through ReadModels backed by DB views. The domain layer is pure PHP.
+The backend follows a pragmatic CQRS layering: writes go through Actions and a Repository, reads go through Queries backed by DB views. The domain layer is pure PHP.
 
 ```mermaid
 graph LR
@@ -12,7 +12,7 @@ graph LR
         C1[Controller] --> A[Action] --> E[Domain Entity] --> R[Repository] --> T[(presentations table)]
     end
     subgraph Read path
-        C2[Controller] --> RM[ReadModel] --> V[(presentations_view)]
+        C2[Controller] --> RM[Query] --> V[(presentations_view)]
     end
 ```
 
@@ -23,7 +23,7 @@ Key points:
 - The domain validates invariants on save (for example, flow nodes must reference slides that exist in the content).
 - The backend does **not** understand how to render slides. Rendering and code generation live entirely in TypeScript (see section 3); for exports, PHP shells out to Node rather than reimplementing the logic.
 
-Relevant directories: `app/Domain/Presentation/` (entities, value objects, contracts), `app/Application/` (commands, actions), `app/Infrastructure/` (repository, read models), `app/Models/` (Eloquent, persistence only).
+Relevant directories: `app/Domain/Presentation/` (entities, value objects, contracts), `app/Application/` (commands, actions), `app/Infrastructure/` (repository, queries), `app/Models/` (Eloquent, persistence only).
 
 ## 2. Frontend (Svelte 5 + Inertia)
 
@@ -93,7 +93,7 @@ sequenceDiagram
     L->>DB: persist JSON columns
     Note over U,DB: — later —
     U->>L: GET /present or /export
-    L->>DB: read via ReadModel (view)
+    L->>DB: read via Query (view)
     alt Present (live)
         L-->>U: Inertia props (JSON)
         U->>U: flow compile + render with Animotion

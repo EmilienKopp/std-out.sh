@@ -2,6 +2,7 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\ReviewComment;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
@@ -38,5 +39,15 @@ class ReviewCommentDetailView extends ReadOnlyModel
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    public function toReviewComment(): ReviewComment
+    {
+        return new ReviewComment(
+            id: $this->id,
+            slide_number: $this->slide_number,
+            message: $this->message,
+            created_at: $this->created_at?->toISOString(),
+        );
     }
 }

@@ -13,8 +13,8 @@ use App\Application\Commands\UpdateTalkEventCommand;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Calendar\ScheduleTalkEventRequest;
 use App\Http\Requests\Calendar\UpdateTalkEventRequest;
-use App\Infrastructure\ReadModels\TalkEventReadModel;
-use App\Infrastructure\ReadModels\TalkReadModel;
+use App\Infrastructure\Queries\TalkEventQuery;
+use App\Infrastructure\Queries\TalkQuery;
 use App\Models\TalkEvent;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
@@ -24,8 +24,8 @@ use Inertia\Response;
 class TalkEventController extends Controller
 {
     public function __construct(
-        private readonly TalkEventReadModel $events,
-        private readonly TalkReadModel $talks,
+        private readonly TalkEventQuery $events,
+        private readonly TalkQuery $talks,
         private readonly ScheduleTalkEvent $scheduleTalkEvent,
         private readonly UpdateTalkEvent $updateTalkEvent,
         private readonly DeleteTalkEvent $deleteTalkEvent,

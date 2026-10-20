@@ -2,6 +2,7 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\PlatformOverview;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
 /**
@@ -36,5 +37,19 @@ class AdminOverviewView extends ReadOnlyModel
             'total_reactions' => 'integer',
             'total_viewers' => 'integer',
         ];
+    }
+
+    public function toPlatformOverview(): PlatformOverview
+    {
+        return new PlatformOverview(
+            total_users: $this->total_users ?? 0,
+            total_teams: $this->total_teams ?? 0,
+            total_workspaces: $this->total_workspaces ?? 0,
+            total_presentations: $this->total_presentations ?? 0,
+            total_sessions: $this->total_sessions ?? 0,
+            live_sessions: $this->live_sessions ?? 0,
+            total_reactions: $this->total_reactions ?? 0,
+            total_viewers: $this->total_viewers ?? 0,
+        );
     }
 }

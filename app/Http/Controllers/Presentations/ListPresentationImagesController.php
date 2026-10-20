@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Presentations;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\PresentationImageReadModel;
+use App\Infrastructure\Queries\PresentationImageQuery;
 use App\Models\Team;
 use Illuminate\Http\JsonResponse;
 
 class ListPresentationImagesController extends Controller
 {
     public function __construct(
-        private readonly PresentationImageReadModel $images,
+        private readonly PresentationImageQuery $images,
     ) {}
 
     public function __invoke(Team $current_team): JsonResponse

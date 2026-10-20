@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Profiles;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\ActivityReadModel;
+use App\Infrastructure\Queries\ActivityQuery;
 use App\Models\User;
 use App\Support\ActivityCalendarSvg;
 use Carbon\CarbonImmutable;
@@ -17,7 +17,7 @@ use Illuminate\Http\Response;
 class ShowActivityGraphController extends Controller
 {
     public function __construct(
-        private readonly ActivityReadModel $activity,
+        private readonly ActivityQuery $activity,
     ) {}
 
     public function __invoke(string $handle): Response

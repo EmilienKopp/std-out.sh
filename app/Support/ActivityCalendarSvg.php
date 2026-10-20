@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Application\Projections\CalendarDayActivity;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -42,7 +43,7 @@ class ActivityCalendarSvg
      * Expects $start to be a Sunday so the first column is a full week:
      * row = weekday, column = week index.
      *
-     * @param  array<string, array{rehearsals: int, talks: int}>  $days  keyed by Y-m-d
+     * @param  array<string, CalendarDayActivity>  $days  keyed by Y-m-d
      */
     public static function render(string $handle, array $days, DateTimeInterface $start, DateTimeInterface $end): string
     {
@@ -62,8 +63,8 @@ class ActivityCalendarSvg
             $row = $index % 7;
             $column = intdiv($index, 7);
             $key = $cursor->format('Y-m-d');
-            $rehearsals = $days[$key]['rehearsals'] ?? 0;
-            $talks = $days[$key]['talks'] ?? 0;
+            $rehearsals = isset($days[$key]) ? $days[$key]->rehearsals : 0;
+            $talks = isset($days[$key]) ? $days[$key]->talks : 0;
             $totalRehearsals += $rehearsals;
             $totalTalks += $talks;
 

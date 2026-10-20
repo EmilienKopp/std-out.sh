@@ -6,7 +6,7 @@ use App\Domain\Presentation\ValueObjects\FlowGraph;
 use App\Domain\Presentation\ValueObjects\PresentationContent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Presentations\ExportPresentationRequest;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Presentation;
 use App\Models\Team;
 use App\Presentation\PresenterFactory;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ExportPresentationController extends Controller
 {
     public function __construct(
-        private readonly PresentationReadModel $presentations,
+        private readonly PresentationQuery $presentations,
         private readonly PresenterFactory $presenters,
     ) {}
 
@@ -32,9 +32,9 @@ class ExportPresentationController extends Controller
         $output = $this->presenters
             ->make($request->exportFormat())
             ->present(
-                PresentationContent::fromArray($data['content']),
-                $data['name'],
-                is_array($data['flow'] ?? null) ? FlowGraph::fromArray($data['flow']) : null,
+                PresentationContent::fromArray($data->content),
+                $data->name,
+                $data->flow !== null ? FlowGraph::fromArray($data->flow) : null,
             );
 
         return response()->streamDownload(

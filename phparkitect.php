@@ -16,7 +16,7 @@ use Arkitect\Rules\Rule;
  * Encodes the pragmatic CQRS layering described in ARCHITECTURE.md:
  *
  *   Write: Http -> Application (Action + Command) -> Domain -> Infrastructure (Repository) -> tables
- *   Read:  Http -> Infrastructure (ReadModel) -> views
+ *   Read:  Http -> Infrastructure (Query) -> views
  *
  * Dependency direction flows inward toward Domain:
  *
@@ -50,12 +50,14 @@ return static function (Config $config): void {
         ->where('Application')->mayDependOnComponents('Domain')
 
         // Infrastructure implements Domain contracts and maps Models <-> Entities.
-        ->where('Infrastructure')->mayDependOnComponents('Domain', 'Models')
+        // Application access is for read-side Projections only ($projectionOnlyRule).
+        ->where('Infrastructure')->mayDependOnComponents('Domain', 'Models', 'Application')
 
-        // Models are a persistence detail; they may reference Domain (toEntity/HasDomainEntity).
-        ->where('Models')->mayDependOnComponents('Domain')
+        // Models are a persistence detail; they may reference Domain (toEntity/HasDomainEntity)
+        // and Application Projections (to{Projection}() mappers on view-backed models).
+        ->where('Models')->mayDependOnComponents('Domain', 'Application')
 
-        // Http is thin glue: call an Action or a ReadModel, hand results to Inertia.
+        // Http is thin glue: call an Action or a Query, hand results to Inertia.
         // No Models: controllers never touch Eloquent directly.
         ->where('Http')->mayDependOnComponents('Application', 'Infrastructure', 'Domain')
 
@@ -96,10 +98,20 @@ return static function (Config $config): void {
         ->should(new HaveNameMatching('*Command'))
         ->because('Commands are named after the Action they serve');
 
-    $readModelNamingRule = Rule::allClasses()
-        ->that(new ResideInOneOfTheseNamespaces('App\Infrastructure\ReadModels'))
-        ->should(new HaveNameMatching('*ReadModel'))
-        ->because('read-side query objects are suffixed ReadModel');
+    // The component rules above open Application to the read side, but only for
+    // Projections — Models and Infrastructure must never reach Actions or Commands.
+    $projectionOnlyRule = Rule::allClasses()
+        ->that(new ResideInOneOfTheseNamespaces('App\Models', 'App\Infrastructure'))
+        ->should(new NotDependsOnTheseNamespaces([
+            'App\Application\Actions',
+            'App\Application\Commands',
+        ]))
+        ->because('the read side may depend on Application\Projections only, never write-side Actions or Commands');
+
+    $queryNamingRule = Rule::allClasses()
+        ->that(new ResideInOneOfTheseNamespaces('App\Infrastructure\Queries'))
+        ->should(new HaveNameMatching('*Query'))
+        ->because('read-side query objects are suffixed Query');
 
     $repositoryNamingRule = Rule::allClasses()
         ->that(new ResideInOneOfTheseNamespaces('App\Infrastructure\Persistence\Repositories'))
@@ -120,8 +132,9 @@ return static function (Config $config): void {
         $classSet,
         $domainPurityRule,
         $applicationPurityRule,
+        $projectionOnlyRule,
         $commandNamingRule,
-        $readModelNamingRule,
+        $queryNamingRule,
         $repositoryNamingRule,
         $viewModelNamingRule,
         $controllerNamingRule,

@@ -9,7 +9,7 @@ use Splitstack\Rome\Models\ReadOnlyModel;
 /**
  * @property int $id
  * @property string $name
- * @property string $email Encrypted ciphertext; decrypt via the ReadModel.
+ * @property string $email Encrypted ciphertext; decrypt via the Query.
  * @property string|null $message
  * @property BetaRequestStatus $status
  * @property Carbon|null $created_at
