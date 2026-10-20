@@ -112,12 +112,13 @@ class DeliveryStats
     private function computeAvgRunSeconds(): ?int
     {
         $runCount = $this->rehearsalCount + $this->sessionCount;
+        $totalSpoken = $this->sumRehearsedSeconds + $this->sessionSeconds;
 
         if ($runCount === 0) {
             return null;
         }
 
-        return (int) round($this->totalSpokenSeconds / $runCount);
+        return (int) round($totalSpoken / $runCount);
     }
 
     private function computeAvgSecondsPerSlide(): ?int
