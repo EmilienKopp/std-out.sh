@@ -91,6 +91,39 @@ test('a talk event with a session on the same day is not counted twice', functio
     expect($response->getContent())->toContain('1 talk on stage');
 });
 
+test('deck creation days render in the quiet neutral', function () {
+    $user = User::factory()->create();
+    Presentation::factory()->create([
+        'team_id' => $user->currentTeam->id,
+        'created_at' => now()->subDays(6),
+    ]);
+
+    $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
+
+    expect($response->getContent())->toContain('#3d3d42')->toContain('1 deck ·');
+});
+
+test('a rehearsal outranks a deck created the same day', function () {
+    $user = User::factory()->create();
+    $presentation = Presentation::factory()->create([
+        'team_id' => $user->currentTeam->id,
+        'created_at' => now()->subDays(7),
+    ]);
+    Rehearsal::factory()->create([
+        'presentation_id' => $presentation->id,
+        'team_id' => $user->currentTeam->id,
+        'user_id' => $user->id,
+        'started_at' => now()->subDays(7),
+        'ended_at' => now()->subDays(7)->addMinutes(15),
+    ]);
+
+    $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
+
+    expect($response->getContent())
+        ->toContain('#3a2a0e') // amber rehearsal cell wins the day
+        ->not->toContain('#3d3d42');
+});
+
 test('handle casing in the url does not matter', function () {
     $user = User::factory()->create(['handle' => 'emilien.kopp']);
 

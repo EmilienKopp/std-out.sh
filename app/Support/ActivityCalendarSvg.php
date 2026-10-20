@@ -13,6 +13,8 @@ use DateTimeInterface;
  * Renders a GitHub-style contribution calendar as a standalone SVG string.
  * Rehearsal days ramp through the tungsten amber scale; days with a talk
  * event render in the live emerald, since being on stage outranks practice.
+ * Days where only a deck (or deck version) was created render in a quiet
+ * neutral, one step above empty.
  */
 class ActivityCalendarSvg
 {
@@ -33,6 +35,8 @@ class ActivityCalendarSvg
     private const string ACCENT = '#f5a623';
 
     private const string TALK = '#34d399';
+
+    private const string DECK = '#3d3d42';
 
     /** @var list<string> index = intensity level 0-4 */
     private const array LEVELS = ['#232326', '#3a2a0e', '#6b4a0c', '#b06e10', '#f5a623'];
@@ -56,6 +60,7 @@ class ActivityCalendarSvg
         $monthLabels = [];
         $totalRehearsals = 0;
         $totalTalks = 0;
+        $totalDecks = 0;
         $previousMonth = null;
         $index = 0;
 
@@ -65,18 +70,26 @@ class ActivityCalendarSvg
             $key = $cursor->format('Y-m-d');
             $rehearsals = isset($days[$key]) ? $days[$key]->rehearsals : 0;
             $talks = isset($days[$key]) ? $days[$key]->talks : 0;
+            $decks = isset($days[$key]) ? $days[$key]->decks : 0;
             $totalRehearsals += $rehearsals;
             $totalTalks += $talks;
+            $totalDecks += $decks;
 
             $x = self::PAD_LEFT + $column * $pitch;
             $y = self::PAD_TOP + $row * $pitch;
-            $fill = $talks > 0 ? self::TALK : self::LEVELS[self::level($rehearsals)];
+            $fill = match (true) {
+                $talks > 0 => self::TALK,
+                $rehearsals > 0 => self::LEVELS[self::level($rehearsals)],
+                $decks > 0 => self::DECK,
+                default => self::LEVELS[0],
+            };
             $label = sprintf(
-                '%s: %d rehearsal%s%s',
+                '%s: %d rehearsal%s%s%s',
                 $key,
                 $rehearsals,
                 $rehearsals === 1 ? '' : 's',
                 $talks > 0 ? sprintf(', %d talk%s', $talks, $talks === 1 ? '' : 's') : '',
+                $decks > 0 ? sprintf(', %d deck%s', $decks, $decks === 1 ? '' : 's') : '',
             );
 
             $cells[] = sprintf(
@@ -126,7 +139,9 @@ class ActivityCalendarSvg
 
         $safeHandle = htmlspecialchars($handle, ENT_XML1);
         $summary = sprintf(
-            '%d rehearsal%s · %d talk%s on stage',
+            '%d deck%s · %d rehearsal%s · %d talk%s on stage',
+            $totalDecks,
+            $totalDecks === 1 ? '' : 's',
             $totalRehearsals,
             $totalRehearsals === 1 ? '' : 's',
             $totalTalks,

@@ -11,6 +11,7 @@ use Splitstack\Rome\Models\ReadOnlyModel;
  * @property string $activity_date
  * @property int $rehearsal_count
  * @property int $talk_event_count
+ * @property int $deck_count
  */
 class UserActivityDayView extends ReadOnlyModel
 {
@@ -26,6 +27,7 @@ class UserActivityDayView extends ReadOnlyModel
         return [
             'rehearsal_count' => 'integer',
             'talk_event_count' => 'integer',
+            'deck_count' => 'integer',
         ];
     }
 
@@ -34,6 +36,7 @@ class UserActivityDayView extends ReadOnlyModel
         return new CalendarDayActivity(
             rehearsals: $this->rehearsal_count,
             talks: $this->talk_event_count,
+            decks: $this->deck_count,
         );
     }
 
