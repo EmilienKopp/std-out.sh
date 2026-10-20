@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Reviews;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\RehearsalReviewReadModel;
+use App\Infrastructure\Queries\RehearsalReviewQuery;
 use App\Models\RehearsalReview;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class ShowReceivedReviewController extends Controller
 {
-    public function __construct(private readonly RehearsalReviewReadModel $reviews) {}
+    public function __construct(private readonly RehearsalReviewQuery $reviews) {}
 
     public function __invoke(RehearsalReview $rehearsal_review): Response
     {
@@ -23,17 +23,17 @@ class ShowReceivedReviewController extends Controller
 
         return Inertia::render('reviews/Received', [
             'review' => $review,
-            'audioUrl' => $review['has_recording']
-                ? route('rehearsals.audio', ['rehearsal' => $review['practice_run_id']])
+            'audioUrl' => $review->has_recording
+                ? route('rehearsals.audio', ['rehearsal' => $review->practice_run_id])
                 : null,
             'siblingReviews' => $this->reviews->listSiblingReviews(
-                $review['practice_run_id'],
-                $review['id'],
+                $review->practice_run_id,
+                $review->id,
             ),
             'otherRuns' => $this->reviews->listReviewedRunsForPresentation(
-                $review['presentation_id'],
+                $review->presentation_id,
                 $rehearsal_review->requester_user_id,
-                $review['practice_run_id'],
+                $review->practice_run_id,
             ),
         ]);
     }

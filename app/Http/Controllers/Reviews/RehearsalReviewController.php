@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Reviews;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\RehearsalReviewReadModel;
+use App\Infrastructure\Queries\RehearsalReviewQuery;
 use App\Models\RehearsalReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class RehearsalReviewController extends Controller
 {
-    public function __construct(private readonly RehearsalReviewReadModel $reviews) {}
+    public function __construct(private readonly RehearsalReviewQuery $reviews) {}
 
     public function index(Request $request): Response
     {
@@ -34,8 +34,8 @@ class RehearsalReviewController extends Controller
 
         return Inertia::render('reviews/Show', [
             'review' => $review,
-            'audioUrl' => $review['has_recording']
-                ? route('rehearsals.audio', ['rehearsal' => $review['practice_run_id']])
+            'audioUrl' => $review->has_recording
+                ? route('rehearsals.audio', ['rehearsal' => $review->practice_run_id])
                 : null,
         ]);
     }

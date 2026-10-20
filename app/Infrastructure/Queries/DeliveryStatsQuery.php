@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\ReadModels;
+namespace App\Infrastructure\Queries;
 
 use App\Domain\Presentation\ValueObjects\DeliveryStats;
 use App\Models\Views\PresentationDeliveryStatsView;
 use App\Models\Views\RehearsalHistoryView;
 use App\Models\Views\SessionAnalyticsView;
 
-class DeliveryStatsReadModel
+class DeliveryStatsQuery
 {
     /**
      * Measured delivery history for one deck: rehearsal aggregates come from

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\AdminOverviewReadModel;
+use App\Infrastructure\Queries\AdminOverviewQuery;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AdminDashboardController extends Controller
 {
     public function __construct(
-        private readonly AdminOverviewReadModel $overview,
+        private readonly AdminOverviewQuery $overview,
     ) {}
 
     public function __invoke(): Response

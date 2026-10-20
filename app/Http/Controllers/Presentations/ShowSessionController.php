@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Presentations;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\SessionReadModel;
+use App\Infrastructure\Queries\SessionQuery;
 use App\Models\PresentationSession;
 use App\Models\Team;
 use Inertia\Inertia;
@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class ShowSessionController extends Controller
 {
-    public function __construct(private readonly SessionReadModel $sessions) {}
+    public function __construct(private readonly SessionQuery $sessions) {}
 
     public function __invoke(Team $current_team, PresentationSession $session): Response
     {

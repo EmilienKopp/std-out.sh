@@ -9,10 +9,10 @@ use App\Application\Commands\RecordRehearsalCommand;
 use App\Domain\Presentation\ValueObjects\PresentationSource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Presentations\RecordRehearsalRequest;
-use App\Infrastructure\ReadModels\ContactsReadModel;
-use App\Infrastructure\ReadModels\RehearsalReadModel;
-use App\Infrastructure\ReadModels\RehearsalReviewReadModel;
-use App\Infrastructure\ReadModels\TalkReadModel;
+use App\Infrastructure\Queries\ContactsQuery;
+use App\Infrastructure\Queries\RehearsalQuery;
+use App\Infrastructure\Queries\RehearsalReviewQuery;
+use App\Infrastructure\Queries\TalkQuery;
 use App\Models\Presentation;
 use App\Models\Rehearsal;
 use App\Models\Team;
@@ -25,10 +25,10 @@ use Inertia\Response;
 class RehearsalController extends Controller
 {
     public function __construct(
-        private readonly RehearsalReadModel $rehearsals,
-        private readonly RehearsalReviewReadModel $reviews,
-        private readonly ContactsReadModel $contacts,
-        private readonly TalkReadModel $talks,
+        private readonly RehearsalQuery $rehearsals,
+        private readonly RehearsalReviewQuery $reviews,
+        private readonly ContactsQuery $contacts,
+        private readonly TalkQuery $talks,
         private readonly RecordRehearsal $recordRehearsal,
     ) {}
 
@@ -48,7 +48,7 @@ class RehearsalController extends Controller
         // External decks (PDF / Google Slides) aren't in the frozen snapshot —
         // their slides live on the presentation, so the replay renders the live
         // source and steps it along the recorded timeline.
-        $presentation = Presentation::find($run['presentation_id']);
+        $presentation = Presentation::find($run->presentation_id);
 
         return Inertia::render('rehearsals/Show', [
             'run' => $run,
@@ -56,7 +56,7 @@ class RehearsalController extends Controller
             'sourcePdfUrl' => $presentation?->sourcePdfUrl(),
             'reviews' => $this->reviews->listForRun($rehearsal->id),
             'followers' => $this->contacts->followersForUser($request->user()->id),
-            'audioUrl' => $run['has_recording']
+            'audioUrl' => $run->has_recording
                 ? route('rehearsals.audio', ['rehearsal' => $rehearsal->id])
                 : null,
         ]);

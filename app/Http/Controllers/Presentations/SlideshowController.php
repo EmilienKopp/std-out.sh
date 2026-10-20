@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Presentations;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Presentation;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SlideshowController extends Controller
 {
-    public function __construct(private readonly PresentationReadModel $presentations) {}
+    public function __construct(private readonly PresentationQuery $presentations) {}
 
     public function __invoke(Presentation $presentation): Response
     {

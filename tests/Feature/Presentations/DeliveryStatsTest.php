@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Infrastructure\ReadModels\DeliveryStatsReadModel;
+use App\Infrastructure\Queries\DeliveryStatsQuery;
 use App\Models\Presentation;
 use App\Models\PresentationSession;
 use App\Models\Rehearsal;
@@ -13,7 +13,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 test('a deck with no history reports empty delivery stats', function () {
     $presentation = Presentation::factory()->create();
 
-    $stats = app(DeliveryStatsReadModel::class)->forPresentation($presentation->id);
+    $stats = app(DeliveryStatsQuery::class)->forPresentation($presentation->id);
 
     expect($stats->rehearsalCount)->toBe(0)
         ->and($stats->sessionCount)->toBe(0)
@@ -58,7 +58,7 @@ test('delivery stats aggregate rehearsals and finished live sessions', function 
         'ended_at' => null,
     ]);
 
-    $stats = app(DeliveryStatsReadModel::class)->forPresentation($presentation->id);
+    $stats = app(DeliveryStatsQuery::class)->forPresentation($presentation->id);
 
     expect($stats->rehearsalCount)->toBe(2)
         ->and($stats->sessionCount)->toBe(1)
@@ -116,7 +116,7 @@ test('team-wide stats average across every deck', function () {
         'ended_at' => Carbon::parse('2026-09-30 10:10:00'),
     ]);
 
-    $stats = app(DeliveryStatsReadModel::class)->forTeam($team->id);
+    $stats = app(DeliveryStatsQuery::class)->forTeam($team->id);
 
     expect($stats->rehearsalCount)->toBe(2)
         ->and($stats->sessionCount)->toBe(1)

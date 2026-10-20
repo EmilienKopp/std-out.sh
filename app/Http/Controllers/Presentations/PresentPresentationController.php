@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Presentations;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Presentation;
 use App\Models\Team;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ use Inertia\Response;
 
 class PresentPresentationController extends Controller
 {
-    public function __construct(private readonly PresentationReadModel $presentations) {}
+    public function __construct(private readonly PresentationQuery $presentations) {}
 
     public function __invoke(Request $request, Team $current_team, Presentation $presentation): Response
     {

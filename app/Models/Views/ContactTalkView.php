@@ -2,6 +2,8 @@
 
 namespace App\Models\Views;
 
+use App\Application\Projections\ContactCard;
+use App\Application\Projections\FollowedTalk;
 use Illuminate\Support\Carbon;
 use Splitstack\Rome\Models\ReadOnlyModel;
 
@@ -38,5 +40,25 @@ class ContactTalkView extends ReadOnlyModel
             'viewer_count' => 'integer',
             'reaction_total' => 'integer',
         ];
+    }
+
+    public function toFollowedTalk(): FollowedTalk
+    {
+        return new FollowedTalk(
+            id: $this->id,
+            name: $this->name,
+            updated_at: $this->updated_at?->toISOString(),
+            last_presented_at: $this->last_presented_at?->toISOString(),
+            viewer_count: $this->viewer_count,
+            reaction_total: $this->reaction_total,
+            user: new ContactCard(
+                id: $this->user_id,
+                name: $this->user_name,
+                avatar: $this->user_avatar,
+                handle: $this->user_handle,
+                social_x_handle: $this->user_social_x_handle,
+                social_github_handle: $this->user_social_github_handle,
+            ),
+        );
     }
 }

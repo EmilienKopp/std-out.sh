@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\ReadModels\AdminUsersReadModel;
-use App\Infrastructure\ReadModels\DashboardReadModel;
+use App\Infrastructure\Queries\AdminUsersQuery;
+use App\Infrastructure\Queries\DashboardQuery;
 use App\Models\Team;
 use App\Models\User;
 use Inertia\Inertia;
@@ -13,8 +13,8 @@ use Inertia\Response;
 class AdminUsersController extends Controller
 {
     public function __construct(
-        private readonly AdminUsersReadModel $users,
-        private readonly DashboardReadModel $dashboard,
+        private readonly AdminUsersQuery $users,
+        private readonly DashboardQuery $dashboard,
     ) {}
 
     public function index(): Response

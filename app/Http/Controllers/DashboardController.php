@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\ReadModels\DashboardReadModel;
-use App\Infrastructure\ReadModels\DeliveryStatsReadModel;
-use App\Infrastructure\ReadModels\PresentationReadModel;
+use App\Infrastructure\Queries\DashboardQuery;
+use App\Infrastructure\Queries\DeliveryStatsQuery;
+use App\Infrastructure\Queries\PresentationQuery;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use Illuminate\Http\Request;
@@ -14,9 +14,9 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     public function __construct(
-        private readonly DashboardReadModel $dashboard,
-        private readonly DeliveryStatsReadModel $deliveryStats,
-        private readonly PresentationReadModel $presentations,
+        private readonly DashboardQuery $dashboard,
+        private readonly DeliveryStatsQuery $deliveryStats,
+        private readonly PresentationQuery $presentations,
     ) {}
 
     public function __invoke(Request $request, Team $current_team): Response
