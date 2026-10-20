@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Presentation;
+use App\Models\PresentationSession;
 use App\Models\Rehearsal;
 use App\Models\TalkEvent;
 use App\Models\User;
@@ -56,6 +57,38 @@ test('talk event days render in the live emerald', function () {
     $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
 
     expect($response->getContent())->toContain('#34d399')->toContain('1 talk on stage');
+});
+
+test('a delivered presentation session counts as a talk on stage', function () {
+    $user = User::factory()->create();
+    $presentation = Presentation::factory()->create(['team_id' => $user->currentTeam->id]);
+    PresentationSession::factory()->ended()->create([
+        'presentation_id' => $presentation->id,
+        'team_id' => $user->currentTeam->id,
+        'started_at' => now()->subDays(4),
+    ]);
+
+    $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
+
+    expect($response->getContent())->toContain('#34d399')->toContain('1 talk on stage');
+});
+
+test('a talk event with a session on the same day is not counted twice', function () {
+    $user = User::factory()->create();
+    $presentation = Presentation::factory()->create(['team_id' => $user->currentTeam->id]);
+    TalkEvent::factory()->create([
+        'team_id' => $user->currentTeam->id,
+        'date' => now()->subDays(5)->toDateString(),
+    ]);
+    PresentationSession::factory()->ended()->create([
+        'presentation_id' => $presentation->id,
+        'team_id' => $user->currentTeam->id,
+        'started_at' => now()->subDays(5),
+    ]);
+
+    $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
+
+    expect($response->getContent())->toContain('1 talk on stage');
 });
 
 test('handle casing in the url does not matter', function () {
