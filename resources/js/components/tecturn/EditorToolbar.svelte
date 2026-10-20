@@ -17,6 +17,7 @@
     import Settings2 from 'lucide-svelte/icons/settings-2';
     import Share2 from 'lucide-svelte/icons/share-2';
     import Smartphone from 'lucide-svelte/icons/smartphone';
+    import Terminal from 'lucide-svelte/icons/terminal';
     import Timer from 'lucide-svelte/icons/timer';
     import Confirm from '@/components/feedback/Confirm.svelte';
     import X from '@/components/icons/X.svelte';
@@ -343,6 +344,19 @@
         toast.success('Reaction URL copied to clipboard.');
     };
 
+    // /dev/null has no share intent — posting is signed locally with the
+    // user's SSH key — so the closest thing to a share button is the ready
+    // -made terminal command. Single quotes in the deck name become '\'' so
+    // the pasted line survives the shell.
+    const copyDevNullCommand = async () => {
+        const message = `${name} ${slideshowUrl}`.replaceAll("'", "'\\''");
+
+        await navigator.clipboard.writeText(
+            `curl -fsSL https://dev-null.sh/commit | bash -s -- '${message}'`,
+        );
+        toast.success('Command copied. Paste it in a terminal to post.');
+    };
+
     const postToX = () => {
         const intent = new URL('https://x.com/intent/tweet');
         intent.searchParams.set('text', name);
@@ -494,6 +508,20 @@
                             data-test="editor-post-to-x"
                         >
                             <X size={16} /> Post on X
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="gap-2"
+                            title="Copy a terminal command that posts this talk to /dev/null"
+                            onclick={() => {
+                                close();
+                                copyDevNullCommand();
+                            }}
+                            data-test="editor-copy-devnull"
+                        >
+                            <Terminal class="h-4 w-4" /> Copy /dev/null command
                         </button>
                     </li>
                 {/snippet}
