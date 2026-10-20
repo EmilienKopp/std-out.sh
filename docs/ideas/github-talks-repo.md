@@ -45,12 +45,25 @@ talks/
 Folder name = talk slug. Rename on Lecturn side = move in the next commit
 (delete old tree path, write new one).
 
+### Bundled /dev/null workflow
+
+Scaffold a `.github/workflows/devnull.yml` into the repo, mirroring this
+project's own workflow: on a published release (i.e. a major talk version
+tag), commit a short note to the user's [dev-null.sh](https://dev-null.sh)
+microblog via `nunomaduro/dev-null.sh/.github/actions/commit` ("Released
+{talk} v2.0" + link). Opt-in: the workflow is inert until the user adds their
+own `DEVNULL_SSH_KEY` secret, so shipping it by default is harmless. Requires
+us to actually publish GitHub **releases** for major versions, not just tags
+(see version mapping above).
+
 ## Version mapping
 
 Talks already group deck versions (major.minor), which maps directly onto git:
 
 - New deck version → one commit, message like `intro-to-cqrs v1.3`.
-- Major version → annotated tag `intro-to-cqrs/v2.0`.
+- Major version → annotated tag `intro-to-cqrs/v2.0`, published as a GitHub
+  release (release publication is what triggers the bundled /dev/null
+  workflow below).
 - Commit author: a Lecturn bot identity; the user appears as committer via the
   app installation, or just bot-authored with the user in the message. TBD.
 
