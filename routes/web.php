@@ -35,6 +35,7 @@ use App\Http\Controllers\Presentations\RetryDeckController;
 use App\Http\Controllers\Presentations\SendMessageController;
 use App\Http\Controllers\Presentations\SendReactionController;
 use App\Http\Controllers\Presentations\ShowSessionController;
+use App\Http\Controllers\Presentations\SlideshowController;
 use App\Http\Controllers\Presentations\StartSessionController;
 use App\Http\Controllers\Presentations\StartTranslationSessionController;
 use App\Http\Controllers\Presentations\StopTranslationSessionController;
@@ -103,6 +104,11 @@ Route::get('embed/presentations/{presentation:embed_token}.js', EmbedPresentatio
 
 Route::get('present/{presentation:embed_token}', ViewerController::class)
     ->name('presentations.viewer');
+
+// Read-only guest view of the deck: just the slides, none of the live
+// machinery (dock, reactions, translation). Private decks 404 here.
+Route::get('present/{presentation:embed_token}/slides', SlideshowController::class)
+    ->name('presentations.slideshow');
 
 // Phone remote for the presenter. Anonymous like the viewer page: the deck's
 // remote token in the URL is the credential (shown only in the editor, never

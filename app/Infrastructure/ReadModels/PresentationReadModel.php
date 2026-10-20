@@ -74,6 +74,24 @@ class PresentationReadModel
     }
 
     /**
+     * Public subset for the anonymous slideshow page: the deck itself and
+     * nothing live — no remote/session secrets, no translation session.
+     *
+     * @return array{name: string, content: array<string, mixed>, flow: array<string, mixed>|null, source: array<string, mixed>}
+     */
+    public function findForSlideshow(int $presentationId): array
+    {
+        $presentation = PresentationsView::query()->findOrFail($presentationId);
+
+        return [
+            'name' => $presentation->name,
+            'content' => $presentation->content,
+            'flow' => $presentation->flow,
+            'source' => PresentationSource::fromArray($presentation->source ?? [])->toArray(),
+        ];
+    }
+
+    /**
      * @return array{
      *     id: int,
      *     name: string,
