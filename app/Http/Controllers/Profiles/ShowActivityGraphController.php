@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\ActivityCalendarSvg;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Public, unauthenticated endpoint — serves a user's activity calendar as an
@@ -22,7 +23,11 @@ class ShowActivityGraphController extends Controller
 
     public function __invoke(string $handle): Response
     {
-        // Handles are stored lowercase; accept any casing in embed URLs.
+        return Cache::remember("activity-graph-$handle", 3600, fn (): Response => $this->render($handle));
+    }
+
+    private function render(string $handle): Response
+    {
         $user = User::query()->where('handle', mb_strtolower($handle))->firstOrFail();
 
         $end = CarbonImmutable::today();
