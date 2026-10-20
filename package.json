@@ -2,6 +2,10 @@
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
     "type": "module",
+    "allowScripts": {
+        "github:EmilienKopp/daisy-svelte": true,
+        "unrs-resolver": false
+    },
     "scripts": {
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
@@ -21,7 +25,7 @@
         "@types/node": "^22.13.5",
         "@types/qrcode": "^1.5.6",
         "concurrently": "^9.0.1",
-        "daisy-svelte": "https://github.com/EmilienKopp/daisy-svelte/releases/download/v0.1.0/daisy-svelte-0.1.0.tgz",
+        "daisy-svelte": "github:EmilienKopp/daisy-svelte",
         "daisyui": "^5.7.47",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
