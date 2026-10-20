@@ -64,6 +64,12 @@ it('generates and persists a deck from a plan via the action', function () {
         'name' => 'Intro to Widgets',
     ]);
 
+    // The auto-created talk sheds its "Generating deck…" placeholder too.
+    $this->assertDatabaseHas('talks', [
+        'id' => $entity->talk_id,
+        'title' => 'Intro to Widgets',
+    ]);
+
     Deckster::assertPrompted('# My plan');
 });
 

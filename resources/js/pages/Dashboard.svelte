@@ -17,8 +17,10 @@
 <script lang="ts">
     import { page, router } from '@inertiajs/svelte';
     import Mic from 'lucide-svelte/icons/mic';
+    import Pencil from 'lucide-svelte/icons/pencil';
     import Presentation from 'lucide-svelte/icons/presentation';
     import Radio from 'lucide-svelte/icons/radio';
+    import Timer from 'lucide-svelte/icons/timer';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import AppHead from '@/components/AppHead.svelte';
     import Confirm from '@/components/feedback/Confirm.svelte';
@@ -43,10 +45,11 @@
     };
 
     type TimelineItem = {
-        type: 'session' | 'rehearsal';
+        type: 'session' | 'rehearsal' | 'upcoming';
         id: number;
-        presentation_id: number;
+        presentation_id: number | null;
         presentation_name: string;
+        event_name?: string;
         started_at: string;
         duration_seconds: number;
         is_live: boolean;
@@ -130,6 +133,24 @@
         });
     };
 
+    // Day-granular label for scheduled events; started_at defaults to
+    // midnight when the event has no start time.
+    const formatUpcoming = (value: string): string => {
+        const eventDay = new Date(value).setHours(0, 0, 0, 0);
+        const today = new Date().setHours(0, 0, 0, 0);
+        const days = Math.round((eventDay - today) / 86_400_000);
+
+        if (days <= 0) {
+            return 'Today';
+        }
+
+        if (days === 1) {
+            return 'Tomorrow';
+        }
+
+        return `in ${days}d`;
+    };
+
     // Reaction chips, biggest tally first.
     const sortedReactions = (counts: Record<string, number>) =>
         Object.entries(counts).sort(([, a], [, b]) => b - a);
@@ -211,9 +232,19 @@
 
     let statsTab: 'room' | 'self' = $state('room');
 
-    // The timeline's two lanes: live talks left, rehearsals right. Every row
-    // renders both cells so each lane's line stays continuous.
+    const rehearseDeck = (id: number) =>
+        router.visit(
+            present({ current_team: teamSlug, presentation: id }).url +
+                '?rehearsal=1',
+        );
+
+    // The timeline's two lanes: live talks left, rehearsals right. Upcoming
+    // events share the talks lane. Every row renders both cells so each
+    // lane's line stays continuous.
     const lanes = ['session', 'rehearsal'] as const;
+
+    const laneFor = (item: TimelineItem): (typeof lanes)[number] =>
+        item.type === 'rehearsal' ? 'rehearsal' : 'session';
 </script>
 
 <AppHead title="Dashboard" />
@@ -397,117 +428,189 @@
                                         aria-hidden="true"
                                     ></span>
 
-                                    {#if item.type === lane}
+                                    {#if laneFor(item) === lane}
                                         <span
                                             class="absolute left-[4.5px] top-2 h-2 w-2 rounded-full {item.is_live
                                                 ? 'animate-pulse bg-live'
-                                                : lane === 'session'
-                                                  ? 'bg-primary'
-                                                  : 'border border-muted-foreground bg-card'}"
+                                                : item.type === 'upcoming'
+                                                  ? 'border border-primary bg-card'
+                                                  : lane === 'session'
+                                                    ? 'bg-primary'
+                                                    : 'border border-muted-foreground bg-card'}"
                                             aria-hidden="true"
                                         ></span>
 
-                                        <div
-                                            class="rounded-xl border border-border bg-card p-3"
-                                            data-test={lane === 'session'
-                                                ? 'session-row'
-                                                : 'rehearsal-row'}
-                                        >
+                                        {#if item.type === 'upcoming'}
                                             <div
-                                                class="flex items-start justify-between gap-3"
+                                                class="rounded-xl border border-dashed border-border bg-card p-3"
+                                                data-test="upcoming-row"
                                             >
-                                                <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
                                                 <div
-                                                    class="min-w-0 cursor-pointer"
-                                                    onclick={() =>
-                                                        openItem(item)}
+                                                    class="flex items-start justify-between gap-3"
                                                 >
-                                                    <p
-                                                        class="truncate font-display text-sm font-semibold text-foreground hover:underline"
-                                                    >
-                                                        {item.presentation_name}
-                                                    </p>
-                                                    <p
-                                                        class="mt-0.5 text-xs text-muted-foreground"
-                                                    >
-                                                        {formatWhen(
-                                                            item.started_at,
-                                                        )} · {formatDuration(
-                                                            item.duration_seconds,
-                                                        )}{#if lane === 'session'}
-                                                            · {item.viewer_count}
-                                                            {item.viewer_count ===
-                                                            1
-                                                                ? 'viewer'
-                                                                : 'viewers'}
-                                                        {/if}
-                                                    </p>
-                                                </div>
-
-                                                <div
-                                                    class="flex shrink-0 items-center gap-1"
-                                                >
-                                                    {#if item.is_live}
-                                                        <span
-                                                            class="flex items-center gap-1.5 rounded-full bg-live/10 px-2 py-1 text-xs font-semibold text-live"
+                                                    <div class="min-w-0">
+                                                        <p
+                                                            class="truncate font-display text-sm font-semibold text-foreground"
                                                         >
-                                                            <Radio
-                                                                class="h-3 w-3"
-                                                            /> Live
-                                                        </span>
-                                                    {:else if lane === 'session'}
-                                                        <!-- Total reactions; the
-                                                             per-emoji detail pops
-                                                             on hover. -->
-                                                        <span
-                                                            class="group relative font-mono text-sm tabular-nums text-muted-foreground"
+                                                            {item.presentation_name}
+                                                        </p>
+                                                        <p
+                                                            class="mt-0.5 text-xs text-muted-foreground"
                                                         >
-                                                            {item.reaction_total}
-                                                            ⚡
-                                                            {#if item.reaction_total > 0}
-                                                                <span
-                                                                    class="pointer-events-none absolute right-0 top-full z-10 mt-1 hidden max-w-64 flex-wrap justify-end gap-1.5 rounded-lg border border-border bg-popover p-2 shadow-md group-hover:flex"
-                                                                    data-test="reaction-detail"
-                                                                >
-                                                                    {#each sortedReactions(item.reaction_counts) as [emoji, count] (emoji)}
-                                                                        <span
-                                                                            class="flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-sm"
-                                                                        >
-                                                                            <span
-                                                                                aria-hidden="true"
-                                                                                >{emoji}</span
-                                                                            >
-                                                                            <span
-                                                                                class="font-mono text-xs tabular-nums text-muted-foreground"
-                                                                                >{count}</span
-                                                                            >
-                                                                        </span>
-                                                                    {/each}
-                                                                </span>
+                                                            {formatUpcoming(
+                                                                item.started_at,
+                                                            )}{#if item.event_name && item.event_name !== item.presentation_name}
+                                                                · {item.event_name}
                                                             {/if}
-                                                        </span>
-                                                    {/if}
-                                                    {#if lane === 'session'}
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            class="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                                                            title="Delete this session and its stats"
-                                                            aria-label="Delete session"
-                                                            onclick={() =>
-                                                                deleteSession(
-                                                                    item,
-                                                                )}
-                                                            data-test="dashboard-delete-session"
+                                                        </p>
+                                                    </div>
+
+                                                    {#if item.presentation_id !== null}
+                                                        <div
+                                                            class="flex shrink-0 items-center gap-1"
                                                         >
-                                                            <Trash2
-                                                                class="h-3.5 w-3.5"
-                                                            />
-                                                        </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                class="h-7 w-7 p-0 text-muted-foreground"
+                                                                title="Edit the latest deck"
+                                                                aria-label="Edit deck"
+                                                                onclick={() =>
+                                                                    item.presentation_id !==
+                                                                        null &&
+                                                                    openDeck(
+                                                                        item.presentation_id,
+                                                                    )}
+                                                                data-test="upcoming-edit"
+                                                            >
+                                                                <Pencil
+                                                                    class="h-3.5 w-3.5"
+                                                                />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                class="h-7 gap-1 px-2 text-muted-foreground"
+                                                                title="Rehearse the latest deck"
+                                                                onclick={() =>
+                                                                    item.presentation_id !==
+                                                                        null &&
+                                                                    rehearseDeck(
+                                                                        item.presentation_id,
+                                                                    )}
+                                                                data-test="upcoming-rehearse"
+                                                            >
+                                                                <Timer
+                                                                    class="h-3.5 w-3.5"
+                                                                /> Rehearse
+                                                            </Button>
+                                                        </div>
                                                     {/if}
                                                 </div>
                                             </div>
-                                        </div>
+                                        {:else}
+                                            <div
+                                                class="rounded-xl border border-border bg-card p-3"
+                                                data-test={lane === 'session'
+                                                    ? 'session-row'
+                                                    : 'rehearsal-row'}
+                                            >
+                                                <div
+                                                    class="flex items-start justify-between gap-3"
+                                                >
+                                                    <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+                                                    <div
+                                                        class="min-w-0 cursor-pointer"
+                                                        onclick={() =>
+                                                            openItem(item)}
+                                                    >
+                                                        <p
+                                                            class="truncate font-display text-sm font-semibold text-foreground hover:underline"
+                                                        >
+                                                            {item.presentation_name}
+                                                        </p>
+                                                        <p
+                                                            class="mt-0.5 text-xs text-muted-foreground"
+                                                        >
+                                                            {formatWhen(
+                                                                item.started_at,
+                                                            )} · {formatDuration(
+                                                                item.duration_seconds,
+                                                            )}{#if lane === 'session'}
+                                                                · {item.viewer_count}
+                                                                {item.viewer_count ===
+                                                                1
+                                                                    ? 'viewer'
+                                                                    : 'viewers'}
+                                                            {/if}
+                                                        </p>
+                                                    </div>
+
+                                                    <div
+                                                        class="flex shrink-0 items-center gap-1"
+                                                    >
+                                                        {#if item.is_live}
+                                                            <span
+                                                                class="flex items-center gap-1.5 rounded-full bg-live/10 px-2 py-1 text-xs font-semibold text-live"
+                                                            >
+                                                                <Radio
+                                                                    class="h-3 w-3"
+                                                                /> Live
+                                                            </span>
+                                                        {:else if lane === 'session'}
+                                                            <!-- Total reactions; the
+                                                             per-emoji detail pops
+                                                             on hover. -->
+                                                            <span
+                                                                class="group relative font-mono text-sm tabular-nums text-muted-foreground"
+                                                            >
+                                                                {item.reaction_total}
+                                                                ⚡
+                                                                {#if item.reaction_total > 0}
+                                                                    <span
+                                                                        class="pointer-events-none absolute right-0 top-full z-10 mt-1 hidden max-w-64 flex-wrap justify-end gap-1.5 rounded-lg border border-border bg-popover p-2 shadow-md group-hover:flex"
+                                                                        data-test="reaction-detail"
+                                                                    >
+                                                                        {#each sortedReactions(item.reaction_counts) as [emoji, count] (emoji)}
+                                                                            <span
+                                                                                class="flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-sm"
+                                                                            >
+                                                                                <span
+                                                                                    aria-hidden="true"
+                                                                                    >{emoji}</span
+                                                                                >
+                                                                                <span
+                                                                                    class="font-mono text-xs tabular-nums text-muted-foreground"
+                                                                                    >{count}</span
+                                                                                >
+                                                                            </span>
+                                                                        {/each}
+                                                                    </span>
+                                                                {/if}
+                                                            </span>
+                                                        {/if}
+                                                        {#if lane === 'session'}
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                class="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                                                                title="Delete this session and its stats"
+                                                                aria-label="Delete session"
+                                                                onclick={() =>
+                                                                    deleteSession(
+                                                                        item,
+                                                                    )}
+                                                                data-test="dashboard-delete-session"
+                                                            >
+                                                                <Trash2
+                                                                    class="h-3.5 w-3.5"
+                                                                />
+                                                            </Button>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
                                     {/if}
                                 </div>
                             {/each}

@@ -9,7 +9,9 @@ use App\Ai\AiCredentialResolver;
 use App\Ai\DeckAssembler;
 use App\Application\Commands\GenerateDeckFromPlanCommand;
 use App\Domain\Presentation\Contracts\PresentationRepository;
+use App\Domain\Presentation\Contracts\TalkRepository;
 use App\Domain\Presentation\Entities\PresentationEntity;
+use App\Domain\Presentation\Entities\TalkEntity;
 use Laravel\Ai\Responses\StructuredAgentResponse;
 use RuntimeException;
 
@@ -21,6 +23,7 @@ class GenerateDeckFromPlan
 {
     public function __construct(
         private readonly PresentationRepository $presentations,
+        private readonly TalkRepository $talks,
         private readonly DeckAssembler $assembler,
         private readonly AiCredentialResolver $credentials,
     ) {}
@@ -52,7 +55,33 @@ class GenerateDeckFromPlan
         $saved = $this->presentations->save($presentation);
         $saved->onCreated();
 
+        $this->renamePlaceholderTalk($saved, $name);
+
         return $saved;
+    }
+
+    /**
+     * The draft's auto-created talk inherits the placeholder deck name, so
+     * once the real title is known the talk follows it. A talk the user
+     * already titled is left alone.
+     */
+    private function renamePlaceholderTalk(PresentationEntity $presentation, string $name): void
+    {
+        if ($presentation->talk_id === null) {
+            return;
+        }
+
+        $talk = $this->talks->findById($presentation->talk_id);
+
+        if ($talk->title !== RequestDeckDraft::GENERATING_NAME) {
+            return;
+        }
+
+        $this->talks->save(new TalkEntity(
+            team_id: $talk->team_id,
+            title: $name,
+            id: $talk->id,
+        ));
     }
 
     /**

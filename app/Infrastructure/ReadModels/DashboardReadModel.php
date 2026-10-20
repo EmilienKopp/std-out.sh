@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\ReadModels;
 
+use App\Models\Views\CalendarEventView;
 use App\Models\Views\RehearsalHistoryView;
 use App\Models\Views\SessionAnalyticsView;
+use App\Models\Views\TalkOverviewView;
+use Illuminate\Support\Carbon;
 
 class DashboardReadModel
 {
     /**
      * Live talks and rehearsals interleaved into one history, most recent
-     * first, shaped for the dashboard timeline's two lanes.
+     * first, shaped for the dashboard timeline's two lanes. Scheduled talk
+     * events within the next week are prepended on top, soonest last, so the
+     * timeline reads future-to-past without upcoming entries eating into the
+     * history limit.
      *
      * @return array<int, array{
-     *     type: 'session'|'rehearsal',
+     *     type: 'session'|'rehearsal'|'upcoming',
      *     id: int,
-     *     presentation_id: int,
+     *     presentation_id: int|null,
      *     presentation_name: string,
      *     started_at: string,
      *     duration_seconds: int,
@@ -53,7 +59,67 @@ class DashboardReadModel
 
         usort($entries, fn (array $a, array $b): int => strcmp($b['started_at'], $a['started_at']));
 
-        return array_slice($entries, 0, $limit);
+        return array_merge(
+            $this->upcomingTimelineEntries($teamId),
+            array_slice($entries, 0, $limit),
+        );
+    }
+
+    /**
+     * Talk events scheduled between today and a week out, furthest first so
+     * they stack on top of the reverse-chronological history. Each carries
+     * the linked talk's latest finished deck so the UI can offer Edit and
+     * Rehearse; presentation_id is null for events without one.
+     *
+     * @return array<int, array{
+     *     type: 'upcoming',
+     *     id: int,
+     *     presentation_id: int|null,
+     *     presentation_name: string,
+     *     event_name: string,
+     *     started_at: string,
+     *     duration_seconds: int,
+     *     is_live: bool,
+     *     viewer_count: int,
+     *     reaction_total: int,
+     *     reaction_counts: array<string, int>
+     * }>
+     */
+    private function upcomingTimelineEntries(int $teamId): array
+    {
+        $events = CalendarEventView::query()
+            ->where('team_id', $teamId)
+            ->whereBetween('date', [
+                Carbon::today()->toDateString(),
+                Carbon::today()->addWeek()->toDateString(),
+            ])
+            ->orderByDesc('date')
+            ->orderByDesc('start_time')
+            ->get();
+
+        $latestDeckByTalk = TalkOverviewView::query()
+            ->whereIn('id', $events->pluck('talk_id')->filter()->unique())
+            ->pluck('latest_presentation_id', 'id');
+
+        return $events
+            ->map(fn (CalendarEventView $event): array => [
+                'type' => 'upcoming',
+                'id' => $event->id,
+                'presentation_id' => $event->talk_id !== null
+                    ? $latestDeckByTalk[$event->talk_id] ?? null
+                    : null,
+                'presentation_name' => $event->talk_title ?? $event->name,
+                'event_name' => $event->name,
+                'started_at' => $event->date
+                    ->setTimeFromTimeString($event->start_time ?? '00:00:00')
+                    ->toISOString(),
+                'duration_seconds' => 0,
+                'is_live' => false,
+                'viewer_count' => 0,
+                'reaction_total' => 0,
+                'reaction_counts' => [],
+            ])
+            ->all();
     }
 
     /**
