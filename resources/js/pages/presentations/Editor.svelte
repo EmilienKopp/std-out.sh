@@ -37,6 +37,7 @@
         presentation,
         embed,
         viewerUrl,
+        slideshowUrl,
         remoteUrl,
         deliveryStats,
         sourcePdfUrl = null,
@@ -64,6 +65,8 @@
             tag: string;
         };
         viewerUrl: string;
+        // Public guest view of the deck (slides only), shared from the toolbar.
+        slideshowUrl: string;
         remoteUrl: string;
         deliveryStats: DeliveryStats;
         sourcePdfUrl?: string | null;
@@ -314,6 +317,7 @@
         onExportJSON={exportJSON}
         {embedSnippet}
         {viewerUrl}
+        {slideshowUrl}
         {remoteUrl}
         {deliveryStats}
     />

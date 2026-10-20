@@ -16,6 +16,7 @@ createInertiaApp({
             case name === 'docs/Index':
             case name === 'beta/register':
             case name === 'presentations/Present':
+            case name === 'presentations/Slideshow':
                 return null;
             case name === 'presentations/Viewer':
             case name === 'presentations/Remote':

@@ -15,9 +15,12 @@
     import QrCode from 'lucide-svelte/icons/qr-code';
     import Save from 'lucide-svelte/icons/save';
     import Settings2 from 'lucide-svelte/icons/settings-2';
+    import Share2 from 'lucide-svelte/icons/share-2';
     import Smartphone from 'lucide-svelte/icons/smartphone';
+    import Terminal from 'lucide-svelte/icons/terminal';
     import Timer from 'lucide-svelte/icons/timer';
     import Confirm from '@/components/feedback/Confirm.svelte';
+    import X from '@/components/icons/X.svelte';
     import PresentMenu from '@/components/PresentMenu.svelte';
     import { promise } from '@/lib/support/async';
     import { ms } from '@/lib/support/time';
@@ -55,6 +58,7 @@
         onExportJSON,
         embedSnippet,
         viewerUrl,
+        slideshowUrl,
         remoteUrl,
         deliveryStats,
     }: {
@@ -82,6 +86,9 @@
         onExportJSON: () => Promise<void>;
         embedSnippet: string;
         viewerUrl: string;
+        // Public guest view of the deck (slides only, no live machinery) —
+        // the URL the X share button posts.
+        slideshowUrl: string;
         // Pairing URL for the phone remote, popped up as a QR from here (and
         // only here — the editor is never projected, unlike the present view).
         remoteUrl: string;
@@ -337,6 +344,26 @@
         toast.success('Reaction URL copied to clipboard.');
     };
 
+    // /dev/null has no share intent — posting is signed locally with the
+    // user's SSH key — so the closest thing to a share button is the ready
+    // -made terminal command. Single quotes in the deck name become '\'' so
+    // the pasted line survives the shell.
+    const copyDevNullCommand = async () => {
+        const message = `${name} ${slideshowUrl}`.replaceAll("'", "'\\''");
+
+        await navigator.clipboard.writeText(
+            `curl -fsSL https://dev-null.sh/commit | bash -s -- '${message}'`,
+        );
+        toast.success('Command copied. Paste it in a terminal to post.');
+    };
+
+    const postToX = () => {
+        const intent = new URL('https://x.com/intent/tweet');
+        intent.searchParams.set('text', name);
+        intent.searchParams.set('url', slideshowUrl);
+        window.open(intent.toString(), '_blank', 'noopener,noreferrer');
+    };
+
     // --- Phone remote pairing ---
     let remoteModalOpen = $state(false);
     const remoteQrSvg = $derived(
@@ -457,6 +484,50 @@
     {/snippet}
 
     <div class="ml-auto flex items-center gap-2">
+        {#if !presentationPrivate}
+            <Dropdown align="end" class="w-48">
+                {#snippet trigger()}
+                    <span
+                        class="btn btn-ghost btn-sm text-muted-foreground"
+                        title="Share the guest view of this talk"
+                        data-test="editor-share-menu"
+                    >
+                        <Share2 class="h-4 w-4" /> Share
+                        <ChevronDown class="h-3.5 w-3.5 opacity-60" />
+                    </span>
+                {/snippet}
+                {#snippet children({ close })}
+                    <li>
+                        <button
+                            type="button"
+                            class="gap-2"
+                            onclick={() => {
+                                close();
+                                postToX();
+                            }}
+                            data-test="editor-post-to-x"
+                        >
+                            <X size={16} /> Post on X
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="gap-2"
+                            title="Copy a terminal command that posts this talk to /dev/null"
+                            onclick={() => {
+                                close();
+                                copyDevNullCommand();
+                            }}
+                            data-test="editor-copy-devnull"
+                        >
+                            <Terminal class="h-4 w-4" /> Copy /dev/null command
+                        </button>
+                    </li>
+                {/snippet}
+            </Dropdown>
+        {/if}
+
         <Button
             variant="ghost"
             size="sm"

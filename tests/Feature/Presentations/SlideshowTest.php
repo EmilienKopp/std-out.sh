@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\Presentation;
+use Inertia\Testing\AssertableInertia as Assert;
+
+test('the slideshow page renders for any visitor using the embed token', function () {
+    $presentation = Presentation::factory()->withSlides(3)->create();
+
+    $response = $this->get(
+        route('presentations.slideshow', ['presentation' => $presentation->embed_token]),
+    );
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('presentations/Slideshow')
+        ->where('presentation.name', $presentation->name)
+        ->count('presentation.content.slides', 3),
+    );
+});
+
+test('the slideshow page exposes no live secrets', function () {
+    $presentation = Presentation::factory()->create();
+
+    $this->get(route('presentations.slideshow', ['presentation' => $presentation->embed_token]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->missing('remote')
+            ->missing('sessionRoutes')
+            ->missing('presentation.yoyotranslate')
+            ->missing('presentation.talk_settings'),
+        );
+});
+
+test('a private deck has no public slideshow', function () {
+    $presentation = Presentation::factory()->create(['is_private' => true]);
+
+    $this->get(route('presentations.slideshow', ['presentation' => $presentation->embed_token]))
+        ->assertNotFound();
+});
