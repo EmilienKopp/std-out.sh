@@ -43,56 +43,32 @@ class DeliveryStatsReadModel
             return new DeliveryStats;
         }
 
-        // Words-per-minute only pairs runs that stored a word count (older
-        // runs predate the column); words and seconds must come from the
-        // same runs or the average would skew.
-        $pacedWords = 0;
-        $pacedSeconds = 0;
-
-        $sessionSeconds = 0;
-
-        SessionAnalyticsView::query()
+        $sessions = SessionAnalyticsView::query()
             ->where($where)
             ->whereNotNull('ended_at')
             ->get()
-            ->each(function (SessionAnalyticsView $session) use (&$sessionSeconds, &$pacedWords, &$pacedSeconds): void {
-                $seconds = (int) $session->started_at->diffInSeconds($session->ended_at, true);
-                $sessionSeconds += $seconds;
+            ->map(fn (SessionAnalyticsView $session): array => [
+                'seconds' => (int) $session->started_at->diffInSeconds($session->ended_at, true),
+                'wordCount' => $session->word_count,
+            ])
+            ->all();
 
-                if ($session->word_count !== null && $seconds > 0) {
-                    $pacedWords += $session->word_count;
-                    $pacedSeconds += $seconds;
-                }
-            });
-
-        $timedSlideCount = 0;
-        $timedSlideSeconds = 0;
-
-        RehearsalHistoryView::query()
+        $rehearsals = RehearsalHistoryView::query()
             ->where($where)
             ->get()
-            ->each(function (RehearsalHistoryView $run) use (&$timedSlideCount, &$timedSlideSeconds, &$pacedWords, &$pacedSeconds): void {
-                foreach ($run->slideTimings() as $timing) {
-                    $timedSlideCount++;
-                    $timedSlideSeconds += $timing['seconds'];
-                }
+            ->map(fn (RehearsalHistoryView $run): array => [
+                'slideTimings' => $run->slideTimings(),
+                'wordCount' => $run->word_count,
+                'durationSeconds' => (int) $run->duration_seconds,
+            ])
+            ->all();
 
-                if ($run->word_count !== null && $run->duration_seconds > 0) {
-                    $pacedWords += $run->word_count;
-                    $pacedSeconds += $run->duration_seconds;
-                }
-            });
-
-        $totalSpokenSeconds = (int) $stats->sum('total_rehearsal_seconds') + $sessionSeconds;
-        $runCount = $rehearsalCount + $sessionCount;
-
-        return new DeliveryStats(
+        return DeliveryStats::fromMeasuredRuns(
             rehearsalCount: $rehearsalCount,
             sessionCount: $sessionCount,
-            totalSpokenSeconds: $totalSpokenSeconds,
-            avgRunSeconds: (int) round($totalSpokenSeconds / $runCount),
-            avgSecondsPerSlide: $timedSlideCount > 0 ? (int) round($timedSlideSeconds / $timedSlideCount) : null,
-            avgWordsPerMinute: $pacedSeconds > 0 ? (int) round($pacedWords / ($pacedSeconds / 60)) : null,
+            sumRehearsedSeconds: (int) $stats->sum('total_rehearsal_seconds'),
+            sessions: $sessions,
+            rehearsals: $rehearsals,
         );
     }
 }

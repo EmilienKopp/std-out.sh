@@ -48,12 +48,18 @@ prev_page_url: string | null,
 };
 export type CursorPaginatorInterface<TKey, TValue> = CursorPaginator<TKey, TValue>;
 export type DeliveryStats = {
-readonly rehearsalCount: number,
-readonly sessionCount: number,
-readonly totalSpokenSeconds: number,
-readonly avgRunSeconds: number | null,
-readonly avgSecondsPerSlide: number | null,
-readonly avgWordsPerMinute: number | null,
+totalSpokenSeconds: number,
+avgRunSeconds: number | null,
+avgSecondsPerSlide: number | null,
+avgWordsPerMinute: number | null,
+rehearsalCount: number,
+sessionCount: number,
+sumRehearsedSeconds: number,
+sessionSeconds: number,
+timedSlideCount: number,
+timedSlideSeconds: number,
+pacedWords: number,
+pacedSeconds: number,
 };
 export type FlowEdge = {
 readonly id: string,
