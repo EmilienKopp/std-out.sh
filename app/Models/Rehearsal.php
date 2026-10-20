@@ -17,6 +17,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $id
  * @property int $presentation_id
  * @property int $team_id
+ * @property int|null $user_id
  * @property Carbon $started_at
  * @property Carbon $ended_at
  * @property int $duration_seconds
@@ -31,7 +32,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property Carbon|null $updated_at
  * @property-read Presentation $presentation
  */
-#[Fillable(['presentation_id', 'team_id', 'started_at', 'ended_at', 'duration_seconds', 'word_count', 'slide_timings', 'step_events', 'content', 'flow', 'version_major', 'version_minor'])]
+#[Fillable(['presentation_id', 'team_id', 'user_id', 'started_at', 'ended_at', 'duration_seconds', 'word_count', 'slide_timings', 'step_events', 'content', 'flow', 'version_major', 'version_minor'])]
 class Rehearsal extends Model implements HasMedia
 {
     /** @use HasFactory<RehearsalFactory> */
@@ -81,6 +82,7 @@ class Rehearsal extends Model implements HasMedia
             step_events: $this->step_events,
             version_major: $this->version_major,
             version_minor: $this->version_minor,
+            user_id: $this->user_id,
             id: $this->id,
         );
     }

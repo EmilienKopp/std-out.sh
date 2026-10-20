@@ -72,6 +72,7 @@ class RehearsalController extends Controller
         $run = $this->recordRehearsal->execute(new RecordRehearsalCommand(
             presentationId: $presentation->id,
             teamId: $presentation->team_id,
+            userId: $request->user()->id,
             startedAt: $request->startedAt(),
             endedAt: $request->endedAt(),
             durationSeconds: (int) $request->validated('duration_seconds'),

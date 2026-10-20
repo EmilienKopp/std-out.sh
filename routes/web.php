@@ -40,6 +40,7 @@ use App\Http\Controllers\Presentations\StartTranslationSessionController;
 use App\Http\Controllers\Presentations\StopTranslationSessionController;
 use App\Http\Controllers\Presentations\UploadPresentationImageController;
 use App\Http\Controllers\Presentations\ViewerController;
+use App\Http\Controllers\Profiles\ShowActivityGraphController;
 use App\Http\Controllers\Reviews\AddReviewCommentController;
 use App\Http\Controllers\Reviews\CompleteRehearsalReviewController;
 use App\Http\Controllers\Reviews\RehearsalReviewController;
@@ -88,6 +89,13 @@ $adminRoutes->group(function () {
     Route::post('features', [AdminFeatureFlagsController::class, 'update'])->name('features.update');
     Route::get('feedback', AdminFeedbackController::class)->name('feedback');
 });
+
+// Public activity calendar, embeddable in READMEs:
+// [![activity](https://.../@handle/graph.svg)](https://.../@handle)
+Route::get('@{handle}/graph.svg', ShowActivityGraphController::class)
+    ->where('handle', '[A-Za-z0-9._-]+')
+    ->middleware('throttle:60,1')
+    ->name('profiles.graph');
 
 Route::get('embed/presentations/{presentation:embed_token}.js', EmbedPresentationController::class)
     ->middleware('throttle:60,1')

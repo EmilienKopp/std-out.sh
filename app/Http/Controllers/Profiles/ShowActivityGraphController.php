@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Controllers\Profiles;
+
+use App\Http\Controllers\Controller;
+use App\Infrastructure\ReadModels\ActivityReadModel;
+use App\Models\User;
+use App\Support\ActivityCalendarSvg;
+use Carbon\CarbonImmutable;
+use Illuminate\Http\Response;
+
+/**
+ * Public, unauthenticated endpoint — serves a user's activity calendar as an
+ * SVG so it can be embedded in READMEs and blog posts. Setting a handle is
+ * what opts a user into this public surface; without one there is no URL.
+ */
+class ShowActivityGraphController extends Controller
+{
+    public function __construct(
+        private readonly ActivityReadModel $activity,
+    ) {}
+
+    public function __invoke(string $handle): Response
+    {
+        // Handles are stored lowercase; accept any casing in embed URLs.
+        $user = User::query()->where('handle', mb_strtolower($handle))->firstOrFail();
+
+        $end = CarbonImmutable::today();
+        $start = $end->subWeeks(52)->startOfWeek(CarbonImmutable::SUNDAY);
+
+        $svg = ActivityCalendarSvg::render(
+            $user->handle,
+            $this->activity->calendarForUser($user->id, $start, $end),
+            $start,
+            $end,
+        );
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml',
+            'Cache-Control' => 'public, max-age=1800',
+        ]);
+    }
+}

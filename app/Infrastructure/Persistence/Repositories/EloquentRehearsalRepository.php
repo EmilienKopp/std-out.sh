@@ -15,6 +15,7 @@ class EloquentRehearsalRepository implements RehearsalRepository
         $attributes = [
             'presentation_id' => $run->presentation_id,
             'team_id' => $run->team_id,
+            'user_id' => $run->user_id,
             'started_at' => $run->started_at,
             'ended_at' => $run->ended_at,
             'duration_seconds' => $run->duration_seconds,
