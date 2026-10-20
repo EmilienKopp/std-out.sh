@@ -33,7 +33,7 @@ class DeliveryStats
         public int $pacedWords = 0,
         public int $pacedSeconds = 0,
     ) {
-        $this->totalSpokenSeconds = $this->sumRehearsedSeconds + $this->sessionSeconds;
+        $this->totalSpokenSeconds = $this->sessionSeconds;
         $this->avgRunSeconds = $this->computeAvgRunSeconds();
         $this->avgSecondsPerSlide = $this->computeAvgSecondsPerSlide();
         $this->avgWordsPerMinute = $this->computeAvgWordsPerMinute();

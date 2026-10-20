@@ -28,48 +28,92 @@ class DashboardReadModel
      */
     public function timelineForTeam(int $teamId, int $limit = 30): array
     {
+        $entries = [];
+
         $sessions = SessionAnalyticsView::query()
             ->where('team_id', $teamId)
             ->orderByDesc('started_at')
             ->limit($limit)
-            ->get()
-            ->map(fn (SessionAnalyticsView $session): array => [
-                'type' => 'session',
-                'id' => $session->id,
-                'presentation_id' => $session->presentation_id,
-                'presentation_name' => $session->presentation_name,
-                'started_at' => $session->started_at->toISOString(),
-                'duration_seconds' => $this->durationSeconds($session),
-                'is_live' => $session->ended_at === null,
-                'viewer_count' => $session->viewer_count,
-                'reaction_total' => $session->reaction_total,
-                'reaction_counts' => $session->reaction_counts ?? [],
-            ]);
+            ->get();
+
+        foreach ($sessions as $session) {
+            $entries[] = $this->sessionTimelineEntry($session);
+        }
 
         $rehearsals = RehearsalHistoryView::query()
             ->select(['id', 'presentation_id', 'presentation_name', 'started_at', 'duration_seconds'])
             ->where('team_id', $teamId)
             ->orderByDesc('started_at')
             ->limit($limit)
-            ->get()
-            ->map(fn (RehearsalHistoryView $run): array => [
-                'type' => 'rehearsal',
-                'id' => $run->id,
-                'presentation_id' => $run->presentation_id,
-                'presentation_name' => $run->presentation_name,
-                'started_at' => $run->started_at->toISOString(),
-                'duration_seconds' => $run->duration_seconds,
-                'is_live' => false,
-                'viewer_count' => 0,
-                'reaction_total' => 0,
-                'reaction_counts' => [],
-            ]);
+            ->get();
 
-        return $sessions->concat($rehearsals)
-            ->sortByDesc('started_at')
-            ->take($limit)
-            ->values()
-            ->all();
+        foreach ($rehearsals as $run) {
+            $entries[] = $this->rehearsalTimelineEntry($run);
+        }
+
+        usort($entries, fn (array $a, array $b): int => strcmp($b['started_at'], $a['started_at']));
+
+        return array_slice($entries, 0, $limit);
+    }
+
+    /**
+     * @return array{
+     *     type: 'session',
+     *     id: int,
+     *     presentation_id: int,
+     *     presentation_name: string,
+     *     started_at: string,
+     *     duration_seconds: int,
+     *     is_live: bool,
+     *     viewer_count: int,
+     *     reaction_total: int,
+     *     reaction_counts: array<string, int>
+     * }
+     */
+    private function sessionTimelineEntry(SessionAnalyticsView $session): array
+    {
+        return [
+            'type' => 'session',
+            'id' => $session->id,
+            'presentation_id' => $session->presentation_id,
+            'presentation_name' => $session->presentation_name,
+            'started_at' => (string) $session->started_at->toISOString(),
+            'duration_seconds' => $this->durationSeconds($session),
+            'is_live' => $session->ended_at === null,
+            'viewer_count' => $session->viewer_count,
+            'reaction_total' => $session->reaction_total,
+            'reaction_counts' => $session->reaction_counts ?? [],
+        ];
+    }
+
+    /**
+     * @return array{
+     *     type: 'rehearsal',
+     *     id: int,
+     *     presentation_id: int,
+     *     presentation_name: string,
+     *     started_at: string,
+     *     duration_seconds: int,
+     *     is_live: bool,
+     *     viewer_count: int,
+     *     reaction_total: int,
+     *     reaction_counts: array<string, int>
+     * }
+     */
+    private function rehearsalTimelineEntry(RehearsalHistoryView $run): array
+    {
+        return [
+            'type' => 'rehearsal',
+            'id' => $run->id,
+            'presentation_id' => $run->presentation_id,
+            'presentation_name' => $run->presentation_name,
+            'started_at' => (string) $run->started_at->toISOString(),
+            'duration_seconds' => $run->duration_seconds,
+            'is_live' => false,
+            'viewer_count' => 0,
+            'reaction_total' => 0,
+            'reaction_counts' => [],
+        ];
     }
 
     /**
