@@ -19,9 +19,15 @@ class SlideshowController extends Controller
         // A private deck's slideshow URL should not even confirm the deck exists.
         abort_if($presentation->is_private, 404);
 
+        $slideCount = count($presentation->content['slides'] ?? []);
+
         return Inertia::render('presentations/Slideshow', [
             'presentation' => $this->presentations->findForSlideshow($presentation->id),
             'sourcePdfUrl' => $presentation->sourcePdfUrl(),
+        ])->withViewData([
+            'metaTitle' => $presentation->name,
+            'metaDescription' => "A {$slideCount}-slide presentation on ".config('app.name', 'Tecturn').'.',
+            'metaImage' => route('presentations.card', ['presentation' => $presentation->embed_token]),
         ]);
     }
 }
