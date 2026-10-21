@@ -35,6 +35,7 @@ use App\Http\Controllers\Presentations\RetryDeckController;
 use App\Http\Controllers\Presentations\SendMessageController;
 use App\Http\Controllers\Presentations\SendReactionController;
 use App\Http\Controllers\Presentations\ShowSessionController;
+use App\Http\Controllers\Presentations\ShowSlideshowCardController;
 use App\Http\Controllers\Presentations\SlideshowController;
 use App\Http\Controllers\Presentations\StartSessionController;
 use App\Http\Controllers\Presentations\StartTranslationSessionController;
@@ -109,6 +110,11 @@ Route::get('present/{presentation:embed_token}', ViewerController::class)
 // machinery (dock, reactions, translation). Private decks 404 here.
 Route::get('present/{presentation:embed_token}/slides', SlideshowController::class)
     ->name('presentations.slideshow');
+
+// The Open Graph preview image for the slideshow URL above.
+Route::get('present/{presentation:embed_token}/card.png', ShowSlideshowCardController::class)
+    ->middleware('throttle:60,1')
+    ->name('presentations.card');
 
 // Phone remote for the presenter. Anonymous like the viewer page: the deck's
 // remote token in the URL is the credential (shown only in the editor, never
