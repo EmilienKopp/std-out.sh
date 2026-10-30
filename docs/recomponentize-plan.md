@@ -18,7 +18,7 @@ Branch: `recomponentize`. Goal: replace shadcn-svelte components with `../daisy-
 
 ## Component mapping
 
-| lecturn (shadcn) | daisy-svelte / daisyUI |
+| std-out (shadcn) | daisy-svelte / daisyUI |
 |---|---|
 | button | Button / BaseButton |
 | dialog | Modal (native `<dialog>`, bind:open + onclose) |
@@ -51,6 +51,6 @@ Branch: `recomponentize`. Goal: replace shadcn-svelte components with `../daisy-
 
 ## Gotchas
 
-- daisyUI is a devDep of daisy-svelte → lecturn must install it itself.
+- daisyUI is a devDep of daisy-svelte → std-out must install it itself.
 - Tailwind 4 ignores node_modules by default → the `@source` line is mandatory.
 - Upstream nicety before/during phase 4: add Tooltip + Avatar wrappers to daisy-svelte.

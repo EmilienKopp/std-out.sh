@@ -1,5 +1,5 @@
 /**
- * Tests for the editor draft store (resources/js/lib/tecturn/editor-draft.ts).
+ * Tests for the editor draft store (resources/js/lib/stdout/editor-draft.ts).
  *
  * Run with: npm run test:js
  *
@@ -29,7 +29,7 @@ class MemoryStorage {
 globalThis.localStorage = new MemoryStorage();
 
 const { clearEditorDraft, isDraftNewer, loadEditorDraft, saveEditorDraft } =
-    await import('../resources/js/lib/tecturn/editor-draft.ts');
+    await import('../resources/js/lib/stdout/editor-draft.ts');
 
 const sampleDraft = () => ({
     name: 'My deck',
@@ -75,7 +75,7 @@ test('clearEditorDraft removes only the target draft', () => {
 });
 
 test('loadEditorDraft returns null on corrupt JSON', () => {
-    globalThis.localStorage.setItem('tecturn-editor-draft-3', '{not json');
+    globalThis.localStorage.setItem('stdout-editor-draft-3', '{not json');
 
     assert.equal(loadEditorDraft(3), null);
 });

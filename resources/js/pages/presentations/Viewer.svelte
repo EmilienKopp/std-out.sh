@@ -5,9 +5,9 @@
     import SendMessageController from '@/actions/App/Http/Controllers/Presentations/SendMessageController';
     import SendReactionController from '@/actions/App/Http/Controllers/Presentations/SendReactionController';
     import AppHead from '@/components/AppHead.svelte';
-    import FloatingReactions from '@/components/tecturn/FloatingReactions.svelte';
+    import FloatingReactions from '@/components/stdout/FloatingReactions.svelte';
     import { getEcho, setPresenceIdentity } from '@/lib/echo';
-    import { beaconPost } from '@/lib/tecturn/beacon';
+    import { beaconPost } from '@/lib/stdout/beacon';
 
     let {
         presentationName,
@@ -109,7 +109,9 @@
         // Float it on the sender's own screen, then broadcast to the hall.
         floatingReactions?.spawnMessage(text);
         messageHttp.message = text;
-        messageHttp.post(SendMessageController.url({ presentation: embedToken }));
+        messageHttp.post(
+            SendMessageController.url({ presentation: embedToken }),
+        );
     }
 
     function flush(): void {
@@ -131,7 +133,7 @@
     }
 
     onMount(() => {
-        const key = 'tecturn:viewerId';
+        const key = 'stdout:viewerId';
         viewerId = sessionStorage.getItem(key) ?? crypto.randomUUID();
         sessionStorage.setItem(key, viewerId);
 
@@ -258,7 +260,7 @@
         box-shadow:
             inset 0 1px 0 hsl(40 20% 92% / 0.06),
             0 0 0 1px hsl(34 9% 21%),
-            0 8px 24px -12px hsl(36 45% 4% / 0.8);
+            0 8px 24px -12px hsl(240 4% 4% / 0.8);
         transition:
             transform 120ms ease,
             box-shadow 200ms ease;

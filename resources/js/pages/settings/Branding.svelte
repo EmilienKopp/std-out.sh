@@ -17,9 +17,9 @@
     import AppHead from '@/components/AppHead.svelte';
     import Heading from '@/components/Heading.svelte';
     import InputError from '@/components/InputError.svelte';
-    import ColorField from '@/components/tecturn/ColorField.svelte';
-    import GradientModal from '@/components/tecturn/GradientModal.svelte';
-    import { isGradientBackground } from '@/lib/tecturn/background';
+    import ColorField from '@/components/stdout/ColorField.svelte';
+    import GradientModal from '@/components/stdout/GradientModal.svelte';
+    import { isGradientBackground } from '@/lib/stdout/background';
     import {
         BRANDING_FALLBACK,
         BRANDING_FONT_SIZES,
@@ -27,8 +27,8 @@
         BRANDING_KEYS,
         BRANDING_LABELS,
         brandingColorsFromTheme,
-    } from '@/lib/tecturn/branding';
-    import { FONTS } from '@/lib/tecturn/fonts';
+    } from '@/lib/stdout/branding';
+    import { FONTS } from '@/lib/stdout/fonts';
     import { update as updateBranding } from '@/routes/branding';
     import PickFromThemeModal from './Partials/PickFromThemeModal.svelte';
 

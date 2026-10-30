@@ -1,0 +1,254 @@
+<script lang="ts">
+    import Copy from 'lucide-svelte/icons/copy';
+    import EyeOff from 'lucide-svelte/icons/eye-off';
+    import Plus from 'lucide-svelte/icons/plus';
+    import Trash2 from 'lucide-svelte/icons/trash-2';
+    import { Button, Modal } from 'daisy-svelte';
+    import {
+        formatSpeakingTime,
+        lintDeck,
+        lintSlide,
+    } from '@/lib/stdout/CodeGeneration/lint';
+    import type { EditorState } from '@/lib/stdout/editor-state.svelte';
+    import type { LintPolicy } from '@/types/generated';
+    import SlideLintBadge from './SlideLintBadge.svelte';
+
+    let {
+        editor,
+        policy,
+        targetMinutes = null,
+        presentationStyle = 'balanced',
+    }: {
+        editor: EditorState;
+        policy: LintPolicy;
+        targetMinutes?: number | null;
+        presentationStyle?: string;
+    } = $props();
+
+    const deck = $derived(
+        lintDeck(
+            editor.content.slides,
+            policy,
+            targetMinutes,
+            presentationStyle,
+        ),
+    );
+
+    const paceLabel = $derived(
+        deck.pace === 'over'
+            ? 'over target'
+            : deck.pace === 'under'
+              ? 'under target'
+              : deck.pace === 'on'
+                ? 'on target'
+                : null,
+    );
+
+    const paceClass = $derived(
+        deck.pace === 'over'
+            ? 'text-red-500'
+            : deck.pace === 'under'
+              ? 'text-warning'
+              : 'text-emerald-600',
+    );
+
+    let deleteDialogOpen = $state(false);
+    let slideIndexDeleting = $state<number | null>(null);
+
+    const slideNameDeleting = $derived(
+        slideIndexDeleting !== null
+            ? (editor.content.slides[slideIndexDeleting]?.title ??
+                  `Slide ${slideIndexDeleting + 1}`)
+            : '',
+    );
+
+    const confirmDeleteSlide = () => {
+        if (slideIndexDeleting !== null) {
+            editor.removeSlide(slideIndexDeleting);
+        }
+
+        deleteDialogOpen = false;
+        slideIndexDeleting = null;
+    };
+
+    // Drag-to-reorder. Dropping onto a slide moves the dragged one into its
+    // spot; editor.moveSlide keeps the flow diagram's nav chain in sync.
+    let dragIndex = $state<number | null>(null);
+    let dragOverIndex = $state<number | null>(null);
+
+    const onDragStart = (event: DragEvent, index: number) => {
+        dragIndex = index;
+
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', String(index));
+        }
+    };
+
+    const onDragOver = (event: DragEvent, index: number) => {
+        if (dragIndex === null) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        dragOverIndex = index;
+    };
+
+    const onDrop = (event: DragEvent, index: number) => {
+        event.preventDefault();
+
+        if (dragIndex !== null && dragIndex !== index) {
+            editor.moveSlide(dragIndex, index);
+        }
+
+        dragIndex = null;
+        dragOverIndex = null;
+    };
+
+    const onDragEnd = () => {
+        dragIndex = null;
+        dragOverIndex = null;
+    };
+</script>
+
+<div class="flex h-full w-48 flex-col border-r">
+    <div class="flex-1 space-y-2 overflow-y-auto p-3">
+        {#each editor.content.slides as slide, index (slide.id)}
+            {@const disabled = !editor.isSlideEnabled(slide.id)}
+            {@const lint = lintSlide(slide, policy, presentationStyle)}
+
+            <button
+                type="button"
+                draggable="true"
+                class="group relative block w-full cursor-grab rounded-md border p-2 text-left text-sm transition-colors hover:bg-accent active:cursor-grabbing {index ===
+                editor.selectedSlideIndex
+                    ? 'border-primary bg-accent'
+                    : ''} {disabled ? 'opacity-45' : ''} {dragIndex === index
+                    ? 'opacity-50'
+                    : ''} {dragOverIndex === index && dragIndex !== index
+                    ? 'border-t-2 border-t-primary'
+                    : ''}"
+                onclick={() => editor.selectSlide(index)}
+                ondragstart={(event) => onDragStart(event, index)}
+                ondragover={(event) => onDragOver(event, index)}
+                ondragleave={() => {
+                    if (dragOverIndex === index) {
+                        dragOverIndex = null;
+                    }
+                }}
+                ondrop={(event) => onDrop(event, index)}
+                ondragend={onDragEnd}
+                data-test="slide-navigator-item"
+                data-disabled={disabled}
+            >
+                <span class="block truncate pr-5 font-medium"
+                    >{slide.title ?? `Slide ${index + 1}`}</span
+                >
+
+                {#if lint.chars > 0}
+                    <span class="mt-0.5 block">
+                        <SlideLintBadge {lint} />
+                    </span>
+                {/if}
+
+                {#if disabled}
+                    <span
+                        class="mt-0.5 flex items-center gap-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase"
+                    >
+                        <EyeOff class="h-3 w-3" /> Disabled
+                    </span>
+                {/if}
+
+                <div
+                    class="absolute top-1 right-1 hidden group-hover:flex gap-0.5"
+                >
+                    <span
+                        role="button"
+                        tabindex="-1"
+                        class="cursor-default rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                        onclick={(event) => {
+                            event.stopPropagation();
+                            editor.duplicateSlide(index);
+                        }}
+                        onkeydown={() => {}}
+                        aria-label="Duplicate slide {index + 1}"
+                        data-test="slide-duplicate-button"
+                    >
+                        <Copy class="h-3 w-3" />
+                    </span>
+                    {#if editor.content.slides.length > 1}
+                        <span
+                            role="button"
+                            tabindex="-1"
+                            class="cursor-default rounded p-1 text-muted-foreground hover:bg-accent hover:text-destructive"
+                            onclick={(event) => {
+                                event.stopPropagation();
+                                slideIndexDeleting = index;
+                                deleteDialogOpen = true;
+                            }}
+                            onkeydown={() => {}}
+                            aria-label="Delete slide {index + 1}"
+                            data-test="slide-delete-button"
+                        >
+                            <Trash2 class="h-3 w-3" />
+                        </span>
+                    {/if}
+                </div>
+            </button>
+        {/each}
+    </div>
+
+    <div class="space-y-2 border-t p-3">
+        <div
+            class="flex items-baseline justify-between text-xs"
+            data-test="deck-lint-total"
+        >
+            <span class="text-muted-foreground">Est. talk</span>
+            <span class="font-mono tabular-nums">
+                ~{formatSpeakingTime(deck.totalSpeakingSeconds)}
+                {#if paceLabel}
+                    <span class={paceClass}>· {paceLabel}</span>
+                {/if}
+            </span>
+        </div>
+        <Button
+            variant="base"
+            outline
+            size="sm"
+            class="w-full"
+            onclick={() => editor.addSlide()}
+            data-test="slide-add-button"
+        >
+            <Plus class="h-4 w-4" /> Add slide
+        </Button>
+    </div>
+</div>
+
+<Modal bind:open={deleteDialogOpen}>
+    {#snippet title()}Delete slide{/snippet}
+    <p class="text-muted-foreground text-sm">
+        Delete "{slideNameDeleting}"? Its blocks and flow connections go with
+        it. This cannot be undone.
+    </p>
+    {#snippet actions()}
+        <Button
+            variant="base"
+            outline
+            onclick={() => (deleteDialogOpen = false)}
+        >
+            Cancel
+        </Button>
+        <Button
+            variant="destructive"
+            onclick={confirmDeleteSlide}
+            data-test="slide-delete-confirm"
+        >
+            Delete
+        </Button>
+    {/snippet}
+</Modal>

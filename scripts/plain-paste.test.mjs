@@ -1,6 +1,6 @@
 /**
  * Tests for the plain-text paste line normalization
- * (resources/js/lib/tecturn/plain-paste.ts).
+ * (resources/js/lib/stdout/plain-paste.ts).
  *
  * Run with: npm run test:js
  *
@@ -9,7 +9,7 @@
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { clipboardLines } from '../resources/js/lib/tecturn/plain-paste.ts';
+import { clipboardLines } from '../resources/js/lib/stdout/plain-paste.ts';
 
 test('splits on \\n', () => {
     assert.deepEqual(clipboardLines('one\ntwo\nthree'), [

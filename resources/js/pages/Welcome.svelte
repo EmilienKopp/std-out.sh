@@ -23,69 +23,72 @@
     const showcase = [
         {
             icon: History,
-            title: 'Rehearsals that remember',
-            body: 'A rehearsal timer with per-slide timings, for Tecturn decks, PDFs, or Google Slides. Every run saves a snapshot, ready to replay or compare to the live talk.',
+            title: 'Dry runs, logged',
+            body: 'A rehearsal timer with per-slide timings, for std-out decks, PDFs, or Google Slides. Every run is snapshotted, ready to replay or diff against the live talk.',
         },
         {
             icon: Users,
-            title: 'A circle of reviewers',
-            body: 'Reviews come from speakers who follow you. Send them a rehearsal and get slide-by-slide comments back, before the talk counts.',
+            title: 'Code review, for talks',
+            body: 'Reviews come from speakers who follow you. Send them a rehearsal and get slide-by-slide comments back, before the talk ships.',
         },
         {
             icon: Radio,
-            title: 'A room that talks back',
-            body: 'The audience scans a QR code and their reactions float across your slides live. Captions can translate you as you speak.',
+            title: 'A room that streams back',
+            body: 'The audience scans a QR code and their reactions pipe onto your slides live. Captions can translate you as you speak.',
         },
         {
             icon: Gauge,
-            title: 'A coach while you write',
-            body: 'Set a target length and every slide gets a speaking-time estimate while you build. The dense ones get flagged before you are on stage.',
+            title: 'A linter for your deck',
+            body: "Set a target length and every slide gets a speaking-time estimate while you build. The dense ones throw warnings before you're on stage.",
         },
     ];
 </script>
 
-<AppHead title="Where developers get on stage" />
+<AppHead title="The standard output for your talks" />
 
 {#snippet ctaButton()}
     {#if auth.user}
         <Link
             href={toUrl(dashboardUrl)}
-            class="mt-5 inline-block rounded-md bg-[hsl(38_91%_55%)] px-6 py-2.5 font-medium text-[hsl(36_45%_10%)] transition-colors hover:bg-[hsl(38_91%_62%)] focus-visible:ring-2 focus-visible:ring-[hsl(38_91%_55%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(240_5%_7%)] focus-visible:outline-none"
+            class="mt-5 inline-block rounded-md bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
         >
             Back to your decks
         </Link>
     {:else if features.canSelfRegister}
         <Link
             href={toUrl(login())}
-            class="mt-5 inline-block rounded-md bg-[hsl(38_91%_55%)] px-6 py-2.5 font-medium text-[hsl(36_45%_10%)] transition-colors hover:bg-[hsl(38_91%_62%)] focus-visible:ring-2 focus-visible:ring-[hsl(38_91%_55%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(240_5%_7%)] focus-visible:outline-none"
+            class="mt-5 inline-block rounded-md bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
         >
             Take the stage
         </Link>
     {:else if features.canRequestBeta}
         <Link
             href={toUrl(betaCreate())}
-            class="mt-5 inline-block rounded-md bg-[hsl(38_91%_55%)] px-6 py-2.5 font-medium text-[hsl(36_45%_10%)] transition-colors hover:bg-[hsl(38_91%_62%)] focus-visible:ring-2 focus-visible:ring-[hsl(38_91%_55%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(240_5%_7%)] focus-visible:outline-none"
+            class="mt-5 inline-block rounded-md bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
         >
             Request beta access
         </Link>
     {/if}
 {/snippet}
 
+<!-- Scoped theme: the house is always dark, whatever the app appearance. -->
 <div
-    class="house flex min-h-screen flex-col text-[hsl(40_10%_95%)] antialiased"
+    data-theme="stdout-dark"
+    class="house flex min-h-screen flex-col text-foreground antialiased"
 >
     <header
         class="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4"
     >
         <span
-            class="font-display text-xl font-semibold tracking-tight select-none"
+            class="font-mono text-xl font-semibold tracking-tight select-none"
         >
-            Tecturn<span class="text-[hsl(38_91%_55%)]">.</span>
+            <span class="text-primary">$</span>
+            std-out<span class="text-primary">.</span>
         </span>
         <nav class="flex items-center gap-4">
             <Link
                 href={toUrl(docs())}
-                class="text-sm text-[hsl(240_4%_56%)] transition-colors hover:text-[hsl(240_5%_86%)]"
+                class="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 data-test="landing-docs-link"
             >
                 Docs
@@ -93,14 +96,14 @@
             {#if auth.user}
                 <Link
                     href={toUrl(dashboardUrl)}
-                    class="rounded-md border border-[hsl(240_4%_22%)] px-4 py-1.5 text-sm text-[hsl(240_5%_86%)] transition-colors hover:border-[hsl(37_40%_35%)] focus-visible:ring-2 focus-visible:ring-[hsl(38_91%_55%)] focus-visible:outline-none"
+                    class="rounded-md border border-border px-4 py-1.5 text-sm text-foreground/90 transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                     Your decks
                 </Link>
             {:else}
                 <Link
                     href={toUrl(login())}
-                    class="rounded-md border border-[hsl(240_4%_22%)] px-4 py-1.5 text-sm text-[hsl(240_5%_86%)] transition-colors hover:border-[hsl(37_40%_35%)] focus-visible:ring-2 focus-visible:ring-[hsl(38_91%_55%)] focus-visible:outline-none"
+                    class="rounded-md border border-border px-4 py-1.5 text-sm text-foreground/90 transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                     Log in
                 </Link>
@@ -117,28 +120,22 @@
                 <LandingDeck />
             </div>
             <p
-                class="mt-3 hidden text-center font-mono text-xs text-[hsl(240_4%_56%)] sm:block"
+                class="mt-3 hidden text-center font-mono text-xs text-muted-foreground sm:block"
             >
                 click the stage, then
-                <kbd
-                    class="rounded border border-[hsl(240_4%_22%)] px-1.5 py-0.5"
-                    >←</kbd
-                >
-                <kbd
-                    class="rounded border border-[hsl(240_4%_22%)] px-1.5 py-0.5"
-                    >→</kbd
-                >
+                <kbd class="rounded border border-border px-1.5 py-0.5">←</kbd>
+                <kbd class="rounded border border-border px-1.5 py-0.5">→</kbd>
                 to drive it
             </p>
         </div>
 
         <section class="mt-6 mb-6 max-w-xl text-center">
-            <p class="text-lg leading-relaxed text-[hsl(240_5%_75%)]">
-                Nobody gets on stage alone. Tecturn is the path from idea to
-                stage: shape your talk, rehearse timed runs, trade
-                slide-by-slide reviews with the speakers you follow, then go
-                live to a room that talks back. The deck above is the product
-                doing its own pitch.
+            <p class="text-lg leading-relaxed text-foreground/75">
+                A talk is a deploy, and std-out is its toolchain: write the
+                deck, dry-run it with timed rehearsals, put it through code
+                review with the speakers you follow, then ship it live to a room
+                that streams back. The deck above is the product doing its own
+                pitch.
             </p>
             {@render ctaButton()}
         </section>
@@ -146,21 +143,22 @@
         <!-- Mission: set like a playbill epigraph under the stage. -->
         <section class="mt-16 w-full max-w-3xl text-center">
             <p
-                class="font-mono text-xs tracking-[0.25em] text-[hsl(38_91%_55%)] uppercase"
+                class="font-mono text-xs tracking-[0.25em] text-primary uppercase"
             >
                 The mission
             </p>
             <p
-                class="mt-4 font-display text-2xl leading-snug font-semibold text-[hsl(40_10%_95%)] sm:text-3xl"
+                class="mt-4 font-display text-2xl leading-snug font-semibold text-foreground sm:text-3xl"
             >
                 Get every developer with something to say onto a stage: a
-                place to shape and rehearse the talk, a circle of speakers who
-                see it before the room does, and an audience that talks back.
+                pipeline to write and dry-run the talk, a review circle that
+                reads it before the room does, and an audience that streams
+                back.
             </p>
             <p class="mt-4">
                 <Link
                     href={toUrl(docs())}
-                    class="text-sm text-[hsl(240_4%_56%)] underline-offset-4 transition-colors hover:text-[hsl(240_5%_86%)] hover:underline"
+                    class="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
                 >
                     See how it works in the docs
                 </Link>
@@ -172,19 +170,19 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 {#each showcase as feature (feature.title)}
                     <div
-                        class="rounded-xl border border-[hsl(240_4%_22%)] bg-[hsl(240_5%_9%)] p-6 transition-colors hover:border-[hsl(37_40%_35%)]"
+                        class="rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
                     >
                         <feature.icon
-                            class="h-5 w-5 text-[hsl(38_91%_55%)]"
+                            class="h-5 w-5 text-primary"
                             aria-hidden="true"
                         />
                         <h2
-                            class="mt-3 font-display font-semibold text-[hsl(40_10%_95%)]"
+                            class="mt-3 font-display font-semibold text-foreground"
                         >
                             {feature.title}
                         </h2>
                         <p
-                            class="mt-1.5 text-sm leading-relaxed text-[hsl(240_5%_70%)]"
+                            class="mt-1.5 text-sm leading-relaxed text-foreground/70"
                         >
                             {feature.body}
                         </p>
@@ -196,30 +194,28 @@
         <!-- Closing CTA -->
         <section class="mt-16 mb-10 w-full max-w-3xl text-center">
             <p
-                class="font-display text-3xl font-bold tracking-tight text-[hsl(40_10%_95%)]"
+                class="font-display text-3xl font-bold tracking-tight text-foreground"
             >
-                Ready for your next talk<span class="text-[hsl(38_91%_55%)]"
-                    >?</span
-                >
+                Ready to ship your next talk<span class="text-primary">?</span>
             </p>
             {@render ctaButton()}
         </section>
     </main>
 
     <footer
-        class="px-6 py-3 text-center font-mono text-xs text-[hsl(240_4%_42%)]"
+        class="px-6 py-3 text-center font-mono text-xs text-muted-foreground/70"
     >
-        Tecturn
+        std-out
     </footer>
 </div>
 
 <style>
     .house {
-        /* Neutral dark house with tungsten spill from above the stage. */
-        background-color: hsl(240 5% 7%);
+        /* Near-black neutral house with a phosphor glow from above the stage. */
+        background-color: hsl(240 3% 6%);
         background-image: radial-gradient(
             120% 60% at 50% -10%,
-            hsl(38 60% 30% / 0.18),
+            hsl(135 50% 25% / 0.14),
             transparent 65%
         );
     }

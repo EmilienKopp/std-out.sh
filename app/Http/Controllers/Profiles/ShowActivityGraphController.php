@@ -23,7 +23,8 @@ class ShowActivityGraphController extends Controller
 
     public function __invoke(string $handle): Response
     {
-        return Cache::remember("activity-graph-$handle", 3600, fn (): Response => $this->render($handle));
+        // v2 = std-out green palette; keyed so stale amber renders expire away.
+        return Cache::remember("activity-graph-v2-$handle", 3600, fn (): Response => $this->render($handle));
     }
 
     private function render(string $handle): Response

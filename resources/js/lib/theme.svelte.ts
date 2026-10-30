@@ -3,20 +3,19 @@ import type { Appearance, ResolvedAppearance } from '@/types';
 export type { Appearance, ResolvedAppearance };
 
 /**
- * 'auto' = the On Air theme pair, following appearance (light/dark/system).
- * Any other value is a fixed daisyUI theme name.
+ * The app theme is locked to the std-out pair; only light/dark/system
+ * appearance is user-selectable. The full daisyUI theme catalog stays
+ * compiled in (themes: all) because deck branding samples palettes from it —
+ * THEME_OPTIONS below exists solely for that picker.
  */
-export type ThemeChoice = 'auto' | string;
-
 export type ThemeOption = {
     name: string;
     label: string;
     scheme: ResolvedAppearance;
 };
 
-/* Keep in sync with the dark-theme list in HandleAppearance.php. */
 const DARK_THEMES = new Set([
-    'onair-dark',
+    'stdout-dark',
     'dark',
     'synthwave',
     'halloween',
@@ -71,32 +70,23 @@ const BUILTIN_THEMES = [
     'silk',
 ];
 
-export const THEME_OPTIONS: ThemeOption[] = [
-    { name: 'auto', label: 'On Air', scheme: 'light' },
-    ...BUILTIN_THEMES.map((name) => ({
-        name,
-        label: name.charAt(0).toUpperCase() + name.slice(1),
-        scheme: (DARK_THEMES.has(name)
-            ? 'dark'
-            : 'light') as ResolvedAppearance,
-    })),
-];
+/* Palette sources for deck branding — not app themes. */
+export const THEME_OPTIONS: ThemeOption[] = BUILTIN_THEMES.map((name) => ({
+    name,
+    label: name.charAt(0).toUpperCase() + name.slice(1),
+    scheme: (DARK_THEMES.has(name) ? 'dark' : 'light') as ResolvedAppearance,
+}));
 
 export type ThemeState = {
     appearance: {
         value: Appearance;
     };
-    theme: {
-        value: ThemeChoice;
-    };
     resolvedAppearance: () => ResolvedAppearance;
     resolvedTheme: () => string;
     updateAppearance: (value: Appearance) => void;
-    updateTheme: (value: ThemeChoice) => void;
 };
 
 const appearance = $state<{ value: Appearance }>({ value: 'system' });
-const theme = $state<{ value: ThemeChoice }>({ value: 'auto' });
 
 let themeChangeMediaQuery: MediaQueryList | null = null;
 
@@ -113,15 +103,11 @@ const isDarkMode = (value: Appearance): boolean => {
 };
 
 const getResolvedTheme = (): string => {
-    if (theme.value === 'auto') {
-        return isDarkMode(appearance.value) ? 'onair-dark' : 'onair';
-    }
-
-    return theme.value;
+    return isDarkMode(appearance.value) ? 'stdout-dark' : 'stdout';
 };
 
 const getResolvedAppearance = (): ResolvedAppearance => {
-    return DARK_THEMES.has(getResolvedTheme()) ? 'dark' : 'light';
+    return isDarkMode(appearance.value) ? 'dark' : 'light';
 };
 
 const setCookie = (name: string, value: string, days = 365): void => {
@@ -138,10 +124,9 @@ const applyTheme = (): void => {
         return;
     }
 
-    const resolvedTheme = getResolvedTheme();
-    const isDark = DARK_THEMES.has(resolvedTheme);
+    const isDark = isDarkMode(appearance.value);
 
-    document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.dataset.theme = getResolvedTheme();
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 };
@@ -156,18 +141,6 @@ const getStoredAppearance = (): Appearance => {
     return stored === 'light' || stored === 'dark' || stored === 'system'
         ? stored
         : 'system';
-};
-
-const getStoredTheme = (): ThemeChoice => {
-    if (typeof window === 'undefined') {
-        return 'auto';
-    }
-
-    const stored = localStorage.getItem('theme');
-
-    return stored && THEME_OPTIONS.some((option) => option.name === stored)
-        ? stored
-        : 'auto';
 };
 
 const handleSystemThemeChange = (): void => {
@@ -196,13 +169,13 @@ export function initializeTheme(): () => void {
         setCookie('appearance', 'system');
     }
 
-    if (!localStorage.getItem('theme')) {
-        localStorage.setItem('theme', 'auto');
-        setCookie('theme', 'auto');
+    /* Pinned daisyUI app themes were retired with the std-out rebrand. */
+    if (localStorage.getItem('theme')) {
+        localStorage.removeItem('theme');
+        setCookie('theme', '', -1);
     }
 
     appearance.value = getStoredAppearance();
-    theme.value = getStoredTheme();
     applyTheme();
 
     detachThemeChangeListener();
@@ -223,24 +196,11 @@ export function updateAppearance(value: Appearance): void {
     applyTheme();
 }
 
-export function updateTheme(value: ThemeChoice): void {
-    theme.value = value;
-
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('theme', value);
-    }
-
-    setCookie('theme', value);
-    applyTheme();
-}
-
 export function themeState(): ThemeState {
     return {
         appearance,
-        theme,
         resolvedAppearance: getResolvedAppearance,
         resolvedTheme: getResolvedTheme,
         updateAppearance,
-        updateTheme,
     };
 }

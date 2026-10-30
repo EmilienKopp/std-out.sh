@@ -330,7 +330,7 @@ test('a presentation can be exported as a web component', function () {
     $response->assertOk();
     $response->assertDownload('launch-deck.js');
 
-    expect($response->streamedContent())->toContain('tecturn-presentation');
+    expect($response->streamedContent())->toContain('stdout-presentation');
 });
 
 test('a text block font family exports as font-family plus a Bunny @import', function () {

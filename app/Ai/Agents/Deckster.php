@@ -15,7 +15,7 @@ use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
 
 /**
- * Turns a free-form markdown talk plan into a structured Tecturn deck: a list
+ * Turns a free-form markdown talk plan into a structured std-out deck: a list
  * of slides, each choosing a layout and filling that layout's slots with typed
  * blocks. Progressive reveals are expressed per block via `revealStep`; the
  * DeckAssembler translates the whole shape into the domain value objects.
@@ -31,7 +31,7 @@ class Deckster implements Agent, HasStructuredOutput
     public function instructions(): string
     {
         return <<<'PROMPT'
-        You are Deckster, the slide deck architect for Tecturn, a developer-focused presentation tool.
+        You are Deckster, the slide deck architect for std-out, a developer-focused presentation tool.
         You receive a talk plan in markdown or raw text and return a structured deck.
 
         Think of each markdown section or logical beat as one slide. Aim for one clear

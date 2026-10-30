@@ -10,30 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 class HandleAppearance
 {
     /**
-     * Keep in sync with DARK_THEMES in resources/js/lib/theme.svelte.ts.
-     *
-     * @var list<string>
-     */
-    private const DARK_THEMES = [
-        'onair-dark', 'dark', 'synthwave', 'halloween', 'forest', 'aqua',
-        'black', 'luxury', 'dracula', 'business', 'night', 'coffee',
-        'dim', 'sunset', 'abyss',
-    ];
-
-    /**
-     * Keep in sync with THEME_OPTIONS in resources/js/lib/theme.svelte.ts.
-     *
-     * @var list<string>
-     */
-    private const LIGHT_THEMES = [
-        'onair', 'light', 'cupcake', 'bumblebee', 'emerald', 'corporate',
-        'retro', 'cyberpunk', 'valentine', 'garden', 'lofi', 'pastel',
-        'fantasy', 'wireframe', 'cmyk', 'autumn', 'acid', 'lemonade',
-        'winter', 'nord', 'caramellatte', 'silk',
-    ];
-
-    /**
      * Handle an incoming request.
+     *
+     * The app theme is locked to the std-out pair; only the appearance
+     * cookie (light/dark/system) picks between them. Legacy 'theme' cookies
+     * from the pinned-theme era are ignored and expire client-side.
+     * 'system' resolves client-side and defaults to light here, matching
+     * previous behavior.
      *
      * @param  Closure(Request): (Response)  $next
      */
@@ -42,27 +25,12 @@ class HandleAppearance
         $appearance = $request->cookie('appearance');
         $appearance = is_string($appearance) ? $appearance : 'system';
 
-        $themeCookie = $request->cookie('theme');
-        $theme = $this->resolveTheme(is_string($themeCookie) ? $themeCookie : null, $appearance);
+        $isDark = $appearance === 'dark';
 
         View::share('appearance', $appearance);
-        View::share('theme', $theme);
-        View::share('themeIsDark', in_array($theme, self::DARK_THEMES, true));
+        View::share('theme', $isDark ? 'stdout-dark' : 'stdout');
+        View::share('themeIsDark', $isDark);
 
         return $next($request);
-    }
-
-    /**
-     * Resolve the daisyUI theme for first paint. 'auto' follows the
-     * appearance cookie between the On Air pair ('system' resolves
-     * client-side and defaults to light here, matching previous behavior).
-     */
-    private function resolveTheme(?string $cookie, string $appearance): string
-    {
-        if ($cookie !== null && $cookie !== 'auto' && in_array($cookie, [...self::DARK_THEMES, ...self::LIGHT_THEMES], true)) {
-            return $cookie;
-        }
-
-        return $appearance === 'dark' ? 'onair-dark' : 'onair';
     }
 }

@@ -1,12 +1,12 @@
 /**
- * Tests for slidesInNavOrder (resources/js/lib/tecturn/flow-compiler.ts): the
+ * Tests for slidesInNavOrder (resources/js/lib/stdout/flow-compiler.ts): the
  * nav chain is the source of truth for slide order.
  *
  * Run with: npm run test:js
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { slidesInNavOrder } from '../resources/js/lib/tecturn/flow-compiler.ts';
+import { slidesInNavOrder } from '../resources/js/lib/stdout/flow-compiler.ts';
 
 function content(...slideIds) {
     return { slides: slideIds.map((id) => ({ id })) };

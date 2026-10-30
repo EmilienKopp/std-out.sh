@@ -199,10 +199,10 @@
                             </div>
                             <div class="flex shrink-0 items-center gap-3">
                                 <span
-                                    class="rounded-full px-2.5 py-0.5 text-xs font-semibold {request.status ===
+                                    class="rounded-full px-2.5 py-0.5 font-mono text-xs font-semibold uppercase {request.status ===
                                     'completed'
                                         ? 'bg-emerald-500/15 text-emerald-500'
-                                        : 'bg-amber-500/15 text-amber-500'}"
+                                        : 'bg-warning/15 text-warning'}"
                                 >
                                     {request.status === 'completed'
                                         ? 'Completed'

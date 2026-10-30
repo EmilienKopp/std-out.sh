@@ -342,7 +342,7 @@
 
         {#if isUnverified}
             <p
-                class="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
+                class="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm text-warning"
                 data-test="unverified-warning"
             >
                 This model isn't on our verified list. Deck generation needs

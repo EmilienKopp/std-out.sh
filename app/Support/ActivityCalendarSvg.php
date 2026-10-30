@@ -11,8 +11,8 @@ use DateTimeInterface;
 
 /**
  * Renders a GitHub-style contribution calendar as a standalone SVG string.
- * Rehearsal days ramp through the tungsten amber scale; days with a talk
- * event render in the live emerald, since being on stage outranks practice.
+ * Rehearsal days ramp through the terminal green scale; days with a talk
+ * event render in warning amber, since being on stage outranks practice.
  * Days where only a deck (or deck version) was created render in a quiet
  * neutral, one step above empty.
  */
@@ -26,20 +26,20 @@ class ActivityCalendarSvg
 
     private const int PAD_TOP = 48;
 
-    private const string BACKGROUND = '#131315';
+    private const string BACKGROUND = '#111112';
 
     private const string TEXT = '#8d8d94';
 
-    private const string TITLE_TEXT = '#f2f2f0';
+    private const string TITLE_TEXT = '#ececec';
 
-    private const string ACCENT = '#f5a623';
+    private const string ACCENT = '#51cf66';
 
-    private const string TALK = '#34d399';
+    private const string TALK = '#fcc419';
 
     private const string DECK = '#3d3d42';
 
     /** @var list<string> index = intensity level 0-4 */
-    private const array LEVELS = ['#232326', '#3a2a0e', '#6b4a0c', '#b06e10', '#f5a623'];
+    private const array LEVELS = ['#232326', '#0e2a14', '#14532d', '#1f9940', '#51cf66'];
 
     private const string FONT = 'font-family="ui-monospace, SFMono-Regular, Menlo, monospace"';
 
@@ -155,11 +155,11 @@ class ActivityCalendarSvg
                 $height,
                 $width,
                 $height,
-                htmlspecialchars(sprintf('Tecturn activity of @%s: %s', $handle, $summary), ENT_XML1),
+                htmlspecialchars(sprintf('std-out activity of @%s: %s', $handle, $summary), ENT_XML1),
             ),
             sprintf('<rect width="%d" height="%d" rx="6" fill="%s"/>', $width, $height, self::BACKGROUND),
             sprintf(
-                '<text x="%d" y="20" font-size="12" font-weight="bold" fill="%s" %s>@%s<tspan fill="%s"> · Tecturn</tspan></text>',
+                '<text x="%d" y="20" font-size="12" font-weight="bold" fill="%s" %s>@%s<tspan fill="%s"> · std-out</tspan></text>',
                 self::PAD_LEFT,
                 self::TITLE_TEXT,
                 self::FONT,

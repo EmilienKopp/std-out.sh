@@ -1,0 +1,401 @@
+<script lang="ts">
+    import {
+        Action,
+        Code,
+        getPresentation,
+        Presentation,
+        Slide,
+        Transition,
+    } from '@animotion/core';
+    import '@animotion/core/theme';
+    import { isGradientBackground } from '@/lib/stdout/background';
+    import {
+        QR_SIZE_CQW,
+        normalizeQrSize,
+        qrToSvg,
+    } from '@/lib/stdout/CodeGeneration/qr';
+    import { sanitizeInlineHtml } from '@/lib/stdout/CodeGeneration/sanitize';
+    import {
+        codeActionCues,
+        compileFlow,
+        defaultFlowFromContent,
+        enabledSlideIds,
+        flattenFreeSteps,
+        groupBlocksIntoSteps,
+        migrateLegacyTransitions,
+        stepIndexBySlide,
+    } from '@/lib/stdout/flow-compiler';
+    import { fontStack } from '@/lib/stdout/fonts';
+    import { FREE_DEFAULTS } from '@/lib/stdout/free-drag';
+    import { layoutDefinition } from '@/lib/stdout/layouts';
+    import { scaleFontSize } from '@/lib/stdout/scaling';
+    import type {
+        Block,
+        FlowGraph,
+        PresentationContent,
+        Slide as SlideData,
+    } from '@/types/generated';
+
+    let {
+        content: rawContent,
+        flow: rawFlow = null,
+        onSlideChange,
+        onStepChange,
+        embedded = false,
+    }: {
+        content: PresentationContent;
+        flow?: FlowGraph | null;
+        /** Fires with the current slide index and the shown-slide total. */
+        onSlideChange?: (current: number, total: number) => void;
+        /**
+         * Fires on every position change, including within-slide reveals:
+         * `step` is the number of fragments currently shown (0 before the
+         * first reveal). Together with onSlideChange this gives the full
+         * navigation timeline a rehearsal records for audio-synced replay.
+         */
+        onStepChange?: (slide: number, step: number) => void;
+        /**
+         * Sizes the deck to its host element instead of the window. Required
+         * when the Presenter renders inside a small box (e.g. the rehearsal
+         * replay); without it Reveal goes full-page and the cqw font sizes
+         * resolve against the viewport, blowing up the text.
+         */
+        embedded?: boolean;
+    } = $props();
+
+    // Same pipeline as codegen.ts, so live presenting and the Svelte export
+    // reveal the exact same steps. Snapshots because the migration
+    // structuredClones its inputs, which rejects $state proxies.
+    const compiled = $derived.by(() => {
+        const contentSnapshot = $state.snapshot(rawContent);
+        const flowSnapshot = $state.snapshot(rawFlow);
+
+        return migrateLegacyTransitions(
+            contentSnapshot,
+            flowSnapshot ?? defaultFlowFromContent(contentSnapshot),
+        );
+    });
+    const content = $derived(compiled.content);
+    const deck = $derived(compileFlow(compiled.flow, content));
+    const stepsBySlideId = $derived(stepIndexBySlide(deck));
+    // Code-action cues per slide: do/undo page pairs resolved by the same
+    // compiler the codegen uses, so live playback matches the export.
+    const cuesBySlideId = $derived(
+        new Map(
+            deck.slides.map((compiledSlide) => [
+                compiledSlide.slide.id,
+                codeActionCues(compiledSlide.slide, compiledSlide.steps),
+            ]),
+        ),
+    );
+
+    // Instances of the Animotion Code components, keyed by block id, so
+    // Action fragments can morph them. Plain object on purpose — refs are
+    // imperative handles, not render state.
+    const codeRefs: Record<string, ReturnType<typeof Code> | undefined> = {};
+
+    const cuesFor = (slide: SlideData, blockId: string) =>
+        (cuesBySlideId.get(slide.id) ?? []).filter(
+            (cue) => cue.blockId === blockId,
+        );
+    // Disabled slides never reach the audience, mirroring the exported deck.
+    const shownSlides = $derived(
+        (() => {
+            const enabled = enabledSlideIds(content, compiled.flow);
+
+            return content.slides.filter((slide) => enabled.has(slide.id));
+        })(),
+    );
+
+    // Track the horizontal slide index off Reveal (via Animotion's shared
+    // store) so the presenter dock can pace each slide. Reveal's indexh matches
+    // the order of the shown slides we render below.
+    $effect(() => {
+        const deck = getPresentation().slides;
+        const total = shownSlides.length;
+
+        if (!deck || (!onSlideChange && !onStepChange)) {
+            return;
+        }
+
+        // Before Reveal finishes booting, getIndices() can report an
+        // undefined h, which would surface as "Slide NaN" in the docks.
+        const report = () => {
+            const { h, f } = deck.getIndices();
+            const slide = Number.isFinite(h) ? h : 0;
+
+            onSlideChange?.(slide, total);
+            // Reveal reports f = -1 (or undefined) before the first fragment,
+            // so the shown-fragment count is f + 1 clamped at 0.
+            onStepChange?.(
+                slide,
+                Number.isFinite(f) ? Math.max(0, (f as number) + 1) : 0,
+            );
+        };
+
+        deck.on('slidechanged', report);
+        deck.on('fragmentshown', report);
+        deck.on('fragmenthidden', report);
+        report();
+
+        return () => {
+            deck.off('slidechanged', report);
+            deck.off('fragmentshown', report);
+            deck.off('fragmenthidden', report);
+        };
+    });
+
+    /**
+     * Jumps to a slide/step position from outside — the audio-synced replay
+     * drives the deck through this. `step` is the shown-fragment count, so
+     * step 0 maps to Reveal fragment index -1 (nothing revealed yet).
+     */
+    export function navigateTo(slide: number, step: number): void {
+        getPresentation().slides?.slide(slide, 0, step - 1);
+    }
+
+    /** Advances one step (fragment or slide), same as the → key. */
+    export function next(): void {
+        getPresentation().slides?.next();
+    }
+
+    /** Steps back one step (fragment or slide), same as the ← key. */
+    export function prev(): void {
+        getPresentation().slides?.prev();
+    }
+
+    const blockStyle = (block: Block): string =>
+        [
+            block.style.fontSize
+                ? `font-size: ${scaleFontSize(block.style.fontSize)};`
+                : '',
+            block.style.fontWeight
+                ? `font-weight: ${block.style.fontWeight};`
+                : '',
+            fontStack(block.style.fontFamily)
+                ? `font-family: ${fontStack(block.style.fontFamily)};`
+                : '',
+            block.style.color ? `color: ${block.style.color};` : '',
+        ]
+            .filter(Boolean)
+            .join(' ');
+
+    const slotSteps = (slide: SlideData, slotName: string) =>
+        groupBlocksIntoSteps(
+            slide.slots[slotName] ?? [],
+            stepsBySlideId.get(slide.id) ?? new Map(),
+        );
+
+    const freeSteps = (slide: SlideData) =>
+        flattenFreeSteps(
+            slide.slots['main'] ?? [],
+            stepsBySlideId.get(slide.id) ?? new Map(),
+        );
+
+    const boxStyle = (block: Block): string =>
+        [
+            `border-color: ${block.style.borderColor ?? 'currentColor'};`,
+            block.style.backgroundColor
+                ? `background-color: ${block.style.backgroundColor};`
+                : '',
+            blockStyle(block),
+        ]
+            .filter(Boolean)
+            .join(' ');
+
+    const freeBlockStyle = (block: Block): string => {
+        const parts = [
+            `left: ${block.style.x ?? FREE_DEFAULTS.x}%;`,
+            `top: ${block.style.y ?? FREE_DEFAULTS.y}%;`,
+            `width: ${block.style.width ?? FREE_DEFAULTS.width}%;`,
+        ];
+
+        if (block.style.height != null) {
+            parts.push(`height: ${block.style.height}%;`);
+        }
+
+        return parts.join(' ');
+    };
+</script>
+
+{#snippet blockView(block: Block)}
+    {#if block.type === 'text'}
+        <p style={blockStyle(block)}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html sanitizeInlineHtml(block.content)}
+        </p>
+    {:else if block.type === 'code'}
+        <div
+            class="[&_pre]:m-0 [&_pre]:overflow-auto [&_pre]:rounded-lg [&_pre]:bg-[#24292e] [&_pre]:p-4 [&_pre]:text-[1.4cqw]! [&_pre]:leading-relaxed"
+        >
+            <Code
+                bind:this={codeRefs[block.id]}
+                code={block.content}
+                lang={block.lang ?? 'text'}
+                theme="github-dark"
+                autoIndent={false}
+            />
+        </div>
+    {:else if block.type === 'box'}
+        <div class="w-full rounded-md border-2 p-4" style={boxStyle(block)}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html sanitizeInlineHtml(block.content)}
+        </div>
+    {:else if block.type === 'richtext'}
+        <div style={blockStyle(block)}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html sanitizeInlineHtml(block.content)}
+        </div>
+    {:else if block.type === 'image'}
+        <img
+            src={block.src ?? ''}
+            alt={block.alt ?? ''}
+            class="max-h-full max-w-full object-contain"
+        />
+    {:else if block.type === 'qr'}
+        {#if block.src}
+            <div
+                class="flex items-center justify-center"
+                style="width: {QR_SIZE_CQW[
+                    normalizeQrSize(block.alt)
+                ]}cqw; max-width: 100%;"
+            >
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {@html qrToSvg(block.src, { title: block.src })}
+            </div>
+        {/if}
+    {/if}
+{/snippet}
+
+{#snippet blockActions(slide: SlideData, block: Block)}
+    {#each cuesFor(slide, block.id) as cue (cue.order)}
+        <Action
+            order={cue.order}
+            do={async () => {
+                const ref = codeRefs[block.id];
+
+                if (ref) {
+                    await ref.update`${cue.show.code}`;
+                    void ref.selectLines`${cue.show.highlightLines ?? '*'}`;
+                }
+            }}
+            undo={async () => {
+                const ref = codeRefs[block.id];
+
+                if (ref) {
+                    await ref.update`${cue.back.code}`;
+                    void ref.selectLines`${cue.back.highlightLines ?? '*'}`;
+                }
+            }}
+        />
+    {/each}
+{/snippet}
+
+<div class="h-full w-full" data-test="presenter">
+    <Presentation
+        options={{
+            hash: false,
+            controls: true,
+            progress: true,
+            embedded,
+            ...(embedded ? { keyboardCondition: 'focused' } : {}),
+        }}
+    >
+        {#each shownSlides as slide (slide.id)}
+            {@const slideImage = slide.backgroundImage}
+            {@const gradient =
+                !slideImage && isGradientBackground(slide.background)}
+            <Slide
+                background={slideImage || gradient
+                    ? undefined
+                    : (slide.background ??
+                      (content.backgroundImage ? undefined : '#ffffff'))}
+                gradient={gradient
+                    ? (slide.background ?? undefined)
+                    : undefined}
+                image={slideImage ??
+                    (slide.background
+                        ? undefined
+                        : (content.backgroundImage ?? undefined))}
+                class="h-full w-full"
+            >
+                {#if slide.layout === 'free'}
+                    <!-- Fit the 16:9 stage inside the slide area (letterbox)
+                         so it never stretches or overflows on odd screen sizes. -->
+                    <div
+                        class="flex h-full w-full items-center justify-center [container-type:size]"
+                    >
+                        <div
+                            class="relative"
+                            style="width: min(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9; color: {slide
+                                .config?.textColor ??
+                                '#1a1a1a'}; text-align: left; line-height: 1.5;"
+                        >
+                            {#each freeSteps(slide) as { block, order } (block.id)}
+                                <div
+                                    class="absolute"
+                                    style={freeBlockStyle(block)}
+                                >
+                                    {#if order !== null}
+                                        <Transition {order}>
+                                            {@render blockView(block)}
+                                            {@render blockActions(slide, block)}
+                                        </Transition>
+                                    {:else}
+                                        {@render blockView(block)}
+                                        {@render blockActions(slide, block)}
+                                    {/if}
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                {:else}
+                    {@const definition = layoutDefinition(slide.layout)}
+                    <!-- `text-left` counters Reveal's inherited center and
+                         `leading-normal` its viewport `line-height: 1`, so
+                         alignment and vertical rhythm match the editor
+                         (Tailwind's 1.5 base); Center re-centers via its
+                         slotClass, same as SlideCanvas. -->
+                    <div
+                        class="{definition.containerClass} h-full p-12 text-left leading-normal"
+                        style="color: {slide.config?.textColor ?? '#1a1a1a'}"
+                    >
+                        {#each definition.slots as slotName (slotName)}
+                            {@const { staticBlocks, stepGroups } = slotSteps(
+                                slide,
+                                slotName,
+                            )}
+                            <div
+                                class="flex min-h-0 flex-col gap-4 {definition
+                                    .slotClass?.[slotName] ?? ''}"
+                            >
+                                {#each staticBlocks as block (block.id)}
+                                    {@render blockView(block)}
+                                    {@render blockActions(slide, block)}
+                                {/each}
+                                {#each stepGroups as group (group.order)}
+                                    <Transition order={group.order}>
+                                        {#each group.blocks as block (block.id)}
+                                            {@render blockView(block)}
+                                            {@render blockActions(slide, block)}
+                                        {/each}
+                                    </Transition>
+                                {/each}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </Slide>
+        {/each}
+    </Presentation>
+</div>
+
+<style>
+    /* Reveal's embedded mode measures the .reveal element, which Animotion
+       renders without dimensions of its own; make it fill the host box. The
+       full-page presenter is unaffected since its viewport is already sized. */
+    div[data-test='presenter'] :global(.reveal) {
+        width: 100%;
+        height: 100%;
+    }
+</style>

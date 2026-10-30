@@ -1,12 +1,12 @@
 /**
  * Tests for the external source helper
- * (resources/js/lib/tecturn/external-source.ts).
+ * (resources/js/lib/stdout/external-source.ts).
  *
  * Run with: npm run test:js
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { googleSlidesEmbedUrl } from '../resources/js/lib/tecturn/external-source.ts';
+import { googleSlidesEmbedUrl } from '../resources/js/lib/stdout/external-source.ts';
 
 test('googleSlidesEmbedUrl returns null for empty input', () => {
     assert.equal(googleSlidesEmbedUrl(null), null);

@@ -252,13 +252,13 @@
                                 {/if}
                             </span>
                         </div>
-                        <!-- Live bar (amber) over the rehearsed baseline
+                        <!-- Live bar (primary green) over the rehearsed baseline
                              (muted), same scale. -->
                         <div
                             class="mt-2 h-1.5 overflow-hidden rounded-full bg-accent"
                         >
                             <div
-                                class="h-full rounded-full bg-amber-500"
+                                class="h-full rounded-full bg-primary"
                                 style="width: {Math.round(
                                     (timing.seconds / maxSeconds) * 100,
                                 )}%"

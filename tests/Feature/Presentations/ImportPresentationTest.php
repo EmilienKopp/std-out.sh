@@ -48,7 +48,7 @@ function importablePresentation(): array
 {
     return [
         'id' => '2',
-        'name' => 'Tecturn Show and Tell',
+        'name' => 'std-out Show and Tell',
         'embed_token' => 'KS3SCJUwSUbkZqykO4DjubOdcRBBcA',
         'content' => [
             'version' => '1.0',
@@ -109,7 +109,7 @@ test('a presentation can be imported from a JSON file as a fresh clone', functio
     ]));
 
     expect($presentation->team_id)->toBe($team->id)
-        ->and($presentation->name)->toBe('Tecturn Show and Tell')
+        ->and($presentation->name)->toBe('std-out Show and Tell')
         ->and($presentation->content['slides'])->toHaveCount(2)
         ->and($presentation->talk_settings['showReactions'])->toBeTrue()
         ->and($presentation->talk_settings['autoSave'])->toBeTrue()
@@ -135,7 +135,7 @@ test('a presentation can be imported from pasted JSON', function () {
         'presentation' => $presentation->id,
     ]));
 
-    expect($presentation->name)->toBe('Tecturn Show and Tell')
+    expect($presentation->name)->toBe('std-out Show and Tell')
         ->and($presentation->content['slides'])->toHaveCount(2);
 });
 

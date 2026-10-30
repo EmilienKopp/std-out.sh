@@ -6,21 +6,22 @@
 
 <!--
     Guest shell for audience-facing pages. Always the darkened house,
-    regardless of the app's light/dark theme: a warm charcoal backdrop
-    with a faint tungsten spill from the stage above.
+    regardless of the app's light/dark theme: a near-black neutral backdrop
+    with a faint phosphor glow from the stage above.
 -->
 <div
-    class="guest-house relative flex min-h-dvh flex-col overflow-hidden text-[hsl(40_30%_96%)] antialiased"
+    data-theme="stdout-dark"
+    class="guest-house relative flex min-h-dvh flex-col overflow-hidden text-foreground antialiased"
 >
     {@render children?.()}
 </div>
 
 <style>
     .guest-house {
-        background-color: hsl(36 11% 7%);
+        background-color: hsl(240 3% 6%);
         background-image: radial-gradient(
             120% 60% at 50% -10%,
-            hsl(37 60% 30% / 0.18),
+            hsl(135 50% 25% / 0.14),
             transparent 65%
         );
     }

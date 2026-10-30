@@ -1,6 +1,6 @@
 /**
  * Vendors the `latin` woff2 files for the catalog fonts (resources/js/lib/
- * tecturn/fonts.ts) into resources/fonts/embed. scripts/present.mjs reads these
+ * stdout/fonts.ts) into resources/fonts/embed. scripts/present.mjs reads these
  * at export time to base64-inline the fonts a deck uses into the embedded web
  * component, so the embed renders offline with no calls to Bunny.
  *
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = path.join(root, 'resources/fonts/embed');
 
-const { FONTS } = await import('../resources/js/lib/tecturn/fonts.ts');
+const { FONTS } = await import('../resources/js/lib/stdout/fonts.ts');
 
 /**
  * Parse a Bunny stylesheet into `{ weight -> latin woff2 url }`. Bunny emits one

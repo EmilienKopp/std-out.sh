@@ -3,27 +3,27 @@
     import { onMount } from 'svelte';
     import { toast } from 'daisy-svelte';
     import AppHead from '@/components/AppHead.svelte';
-    import CodeSequenceModal from '@/components/tecturn/CodeSequenceModal.svelte';
-    import EditorToolbar from '@/components/tecturn/EditorToolbar.svelte';
-    import ExternalPresenter from '@/components/tecturn/ExternalPresenter.svelte';
-    import FlowCanvas from '@/components/tecturn/flow/FlowCanvas.svelte';
-    import InspectorPanel from '@/components/tecturn/InspectorPanel.svelte';
-    import SlideCanvas from '@/components/tecturn/SlideCanvas.svelte';
-    import SlideNavigator from '@/components/tecturn/SlideNavigator.svelte';
-    import { generatePresentationSvelte } from '@/lib/tecturn/codegen';
+    import CodeSequenceModal from '@/components/stdout/CodeSequenceModal.svelte';
+    import EditorToolbar from '@/components/stdout/EditorToolbar.svelte';
+    import ExternalPresenter from '@/components/stdout/ExternalPresenter.svelte';
+    import FlowCanvas from '@/components/stdout/flow/FlowCanvas.svelte';
+    import InspectorPanel from '@/components/stdout/InspectorPanel.svelte';
+    import SlideCanvas from '@/components/stdout/SlideCanvas.svelte';
+    import SlideNavigator from '@/components/stdout/SlideNavigator.svelte';
+    import { generatePresentationSvelte } from '@/lib/stdout/codegen';
     import {
         downloadBlob,
         downloadFile,
         slugify,
-    } from '@/lib/tecturn/download';
+    } from '@/lib/stdout/download';
     import {
         clearEditorDraft,
         isDraftNewer,
         loadEditorDraft,
         saveEditorDraft,
-    } from '@/lib/tecturn/editor-draft';
-    import { EditorState } from '@/lib/tecturn/editor-state.svelte';
-    import { lastUsedStyle } from '@/lib/tecturn/last-used-style.svelte';
+    } from '@/lib/stdout/editor-draft';
+    import { EditorState } from '@/lib/stdout/editor-state.svelte';
+    import { lastUsedStyle } from '@/lib/stdout/last-used-style.svelte';
     import { exportMethod, update } from '@/routes/presentations';
     import type {
         DeliveryStats,

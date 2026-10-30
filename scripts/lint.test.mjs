@@ -1,5 +1,5 @@
 /**
- * Tests for the content linter (resources/js/lib/tecturn/CodeGeneration/lint.ts).
+ * Tests for the content linter (resources/js/lib/stdout/CodeGeneration/lint.ts).
  *
  * Run with: npm run test:js
  *
@@ -15,7 +15,7 @@ import {
     lintSlide,
     speakingSeconds,
     stripInlineHtml,
-} from '../resources/js/lib/tecturn/CodeGeneration/lint.ts';
+} from '../resources/js/lib/stdout/CodeGeneration/lint.ts';
 
 // Mirrors config/lint.php defaults. The backend owns the real values; this is
 // just a fixture so the counting/judging logic can be exercised in isolation.

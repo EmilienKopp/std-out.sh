@@ -19,6 +19,7 @@
 </script>
 
 <Breadcrumbs
+    class="font-mono text-xs"
     {items}
     onNavigate={(event, item) => {
         event.preventDefault();

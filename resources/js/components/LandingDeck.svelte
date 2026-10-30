@@ -2,7 +2,7 @@
     import { Code, Presentation, Slide } from '@animotion/core';
     import '@animotion/core/theme';
     import { onMount } from 'svelte';
-    import FloatingReactions from '@/components/tecturn/FloatingReactions.svelte';
+    import FloatingReactions from '@/components/stdout/FloatingReactions.svelte';
 
     // The landing hero is a hand-written Animotion deck, not a Presenter
     // instance — the marketing copy lives here as slides, and the deck runs
@@ -74,11 +74,7 @@
     });
 </script>
 
-<div
-    class="relative h-full w-full"
-    data-test="landing-deck"
-    bind:this={deckEl}
->
+<div class="relative h-full w-full" data-test="landing-deck" bind:this={deckEl}>
     <FloatingReactions bind:this={floating} enabled={!reducedMotion} />
     <Presentation
         options={{
@@ -97,12 +93,14 @@
                 class="flex h-full w-full flex-col items-start justify-center gap-[3cqh] px-[8cqw] text-left"
             >
                 <h1
-                    class="font-display text-[9cqw] leading-none font-bold tracking-tight text-[#19191c]"
+                    class="font-mono text-[8cqw] leading-none font-bold tracking-tight text-[#19191c]"
                 >
-                    Tecturn<span class="text-[#d97e0a]">.</span>
+                    <span class="text-[#1f7a33]">$</span> std-out<span
+                        class="text-[#1f7a33]">.</span
+                    >
                 </h1>
                 <p class="text-[3.2cqw] text-[#65656d]">
-                    Your path to the stage.
+                    The standard output for your talks.
                 </p>
                 <p class="font-mono text-[1.7cqw] text-[#8d8d94]">
                     (this hero is a live deck, press →)
@@ -117,10 +115,10 @@
                 <p
                     class="font-display text-[5.2cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    Talks don't succeed in a vacuum.
+                    A talk is a deploy.
                 </p>
                 <p class="text-[2.4cqw] text-[#65656d]">
-                    Nobody delivers a great one alone.
+                    You wouldn't push to prod without a dry run and a review.
                 </p>
             </div>
         </Slide>
@@ -132,16 +130,16 @@
                 <h2
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    Rehearse like it's opening night.
+                    Dry-run it before prod.
                 </h2>
                 <div
                     class="flex items-center gap-[1.4cqw] rounded-lg border border-[#e4e4e7] bg-white px-[2cqw] py-[1.4cqh] font-mono text-[1.7cqw] text-[#65656d]"
                 >
                     <span
-                        class="h-[1.4cqw] w-[1.4cqw] rounded-full bg-[#d97e0a]"
+                        class="h-[1.4cqw] w-[1.4cqw] rounded-full bg-[#1f7a33]"
                     ></span>
-                    12:40 · slide 8 / 17
-                    <span class="text-[#b06e10]">· rehearsing</span>
+                    $ rehearse deck · 12:40 · slide 8/17
+                    <span class="text-[#1f7a33]">· recording</span>
                 </div>
             </div>
         </Slide>
@@ -153,10 +151,10 @@
                 <h2
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    Every run is remembered.
+                    Every run is logged.
                 </h2>
                 <p class="text-[2.4cqw] text-[#65656d]">
-                    Timed per slide, snapshotted, ready to replay.
+                    Per-slide timings, snapshotted. A git log for your delivery.
                 </p>
             </div>
         </Slide>
@@ -168,12 +166,12 @@
                 <h2
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    Your peers see it before the room does.
+                    Code review, for talks.
                 </h2>
                 <div
                     class="flex items-center gap-[1.2cqw] rounded-lg border border-[#e4e4e7] bg-white px-[2cqw] py-[1.4cqh] font-mono text-[1.7cqw] text-[#65656d]"
                 >
-                    <span class="text-[#b06e10]">@mika · slide 4</span>
+                    <span class="text-[#1f7a33]">@mika · slide 4</span>
                     “cut the YAML wall, just say it”
                 </div>
             </div>
@@ -186,10 +184,10 @@
                 <h2
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    Build your circle of speakers.
+                    Build your review circle.
                 </h2>
                 <p class="text-[2.4cqw] text-[#65656d]">
-                    Trade reviews. Everyone goes on stage sharper.
+                    Trade reviews like PRs. Everyone merges sharper.
                 </p>
             </div>
         </Slide>
@@ -201,16 +199,18 @@
                 <h2
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                 >
-                    The deck coaches you while you write.
+                    A linter for your deck.
                 </h2>
                 <div
                     class="flex items-center gap-[1.2cqw] rounded-lg border border-[#e4e4e7] bg-white px-[2cqw] py-[1.4cqh] font-mono text-[1.7cqw] text-[#65656d]"
                 >
                     <span
-                        class="h-[1.4cqw] w-[1.4cqw] rounded-full bg-[#d97e0a]"
+                        class="h-[1.4cqw] w-[1.4cqw] rounded-full bg-[#1f7a33]"
                     ></span>
                     82 words · ~0:38
-                    <span class="text-[#b06e10]">· trim this slide</span>
+                    <span class="text-[#1f7a33]"
+                        >· warning: trim this slide</span
+                    >
                 </div>
             </div>
         </Slide>
@@ -223,11 +223,11 @@
                     class="font-display text-[4.6cqw] leading-tight font-semibold tracking-tight text-[#19191c]"
                     data-reactions-cue
                 >
-                    Then the room talks back.
+                    Then the room streams back.
                 </h2>
                 <p class="text-[2.4cqw] text-[#65656d]">
-                    Reactions float across your slides. Captions translate you
-                    live.
+                    Reactions pipe onto your slides. Captions translate you as
+                    you speak.
                 </p>
             </div>
         </Slide>
@@ -239,10 +239,10 @@
                 <h2
                     class="font-display text-[4cqw] font-semibold tracking-tight text-[#19191c]"
                 >
-                    The whole loop, built in.
+                    The pipeline, end to end.
                 </h2>
                 <div
-                    class="w-[56cqw] [&_pre]:m-0 [&_pre]:overflow-auto [&_pre]:rounded-lg [&_pre]:bg-[#1a2029] [&_pre]:p-[1.6cqw] [&_pre]:text-[1.8cqw]! [&_pre]:leading-relaxed"
+                    class="w-[56cqw] [&_pre]:m-0 [&_pre]:overflow-auto [&_pre]:rounded-lg [&_pre]:bg-[#18181a] [&_pre]:p-[1.6cqw] [&_pre]:text-[1.8cqw]! [&_pre]:leading-relaxed"
                 >
                     <Code
                         codes={morphPages}
@@ -254,17 +254,17 @@
             </div>
         </Slide>
 
-        <Slide background="#131315" class="h-full w-full">
+        <Slide background="#111112" class="h-full w-full">
             <div
                 class="flex h-full w-full flex-col items-start justify-center gap-[3cqh] px-[8cqw] text-left"
             >
                 <p
-                    class="font-display text-[6.5cqw] leading-none font-bold tracking-tight text-[#f2f2f0]"
+                    class="font-display text-[6.5cqw] leading-none font-bold tracking-tight text-[#ececec]"
                 >
-                    Take the stage<span class="text-[#f5a623]">.</span>
+                    Take the stage<span class="text-[#51cf66]">.</span>
                 </p>
                 <p class="text-[2.2cqw] text-[#8d8d94]">
-                    Sign in and start your first talk.
+                    Sign in and ship your first talk.
                 </p>
             </div>
         </Slide>

@@ -3,26 +3,26 @@
     import { onMount } from 'svelte';
     import { SvelteSet } from 'svelte/reactivity';
     import AppHead from '@/components/AppHead.svelte';
-    import ExternalPresenter from '@/components/tecturn/ExternalPresenter.svelte';
-    import FloatingReactions from '@/components/tecturn/FloatingReactions.svelte';
-    import Presenter from '@/components/tecturn/Presenter.svelte';
-    import PresenterDock from '@/components/tecturn/PresenterDock.svelte';
-    import PresentFooter from '@/components/tecturn/PresentFooter.svelte';
-    import type { RehearsalPayload } from '@/components/tecturn/RehearsalDock.svelte';
-    import RehearsalDock from '@/components/tecturn/RehearsalDock.svelte';
-    import YoYoTranslatePanel from '@/components/tecturn/YoYoTranslatePanel.svelte';
+    import ExternalPresenter from '@/components/stdout/ExternalPresenter.svelte';
+    import FloatingReactions from '@/components/stdout/FloatingReactions.svelte';
+    import Presenter from '@/components/stdout/Presenter.svelte';
+    import PresenterDock from '@/components/stdout/PresenterDock.svelte';
+    import PresentFooter from '@/components/stdout/PresentFooter.svelte';
+    import type { RehearsalPayload } from '@/components/stdout/RehearsalDock.svelte';
+    import RehearsalDock from '@/components/stdout/RehearsalDock.svelte';
+    import YoYoTranslatePanel from '@/components/stdout/YoYoTranslatePanel.svelte';
     import { getEcho, setControlToken, setPresenceIdentity } from '@/lib/echo';
-    import { beaconPost } from '@/lib/tecturn/beacon';
-    import { playBuzzer, unlockBuzzerAudio } from '@/lib/tecturn/buzzer';
+    import { beaconPost } from '@/lib/stdout/beacon';
+    import { playBuzzer, unlockBuzzerAudio } from '@/lib/stdout/buzzer';
     import {
         countUnits,
         slideProseText,
-    } from '@/lib/tecturn/CodeGeneration/lint';
+    } from '@/lib/stdout/CodeGeneration/lint';
     import {
         defaultFlowFromContent,
         enabledSlideIds,
         migrateLegacyTransitions,
-    } from '@/lib/tecturn/flow-compiler';
+    } from '@/lib/stdout/flow-compiler';
     import type {
         FlowGraph,
         PresentationContent,

@@ -5,7 +5,7 @@
         BRANDING_KEYS,
         BRANDING_LABELS,
         brandingColorsFromTheme,
-    } from '@/lib/tecturn/branding';
+    } from '@/lib/stdout/branding';
     import { THEME_OPTIONS, themeState } from '@/lib/theme.svelte';
     import type { ThemeOption } from '@/lib/theme.svelte';
     import type { BrandingColors } from '@/types/auth';
@@ -18,12 +18,12 @@
         onSave: (branding: BrandingColors) => void;
     } = $props();
 
-    // The On Air pair ships as two concrete themes; 'auto' is an appearance
-    // setting, not a palette, so it is replaced by its two resolved themes.
+    // The std-out pair first, then the full daisyUI catalog — all available
+    // as deck-branding palette sources even though the app theme is locked.
     const themes: ThemeOption[] = [
-        { name: 'onair', label: 'On Air', scheme: 'light' },
-        { name: 'onair-dark', label: 'On Air Dark', scheme: 'dark' },
-        ...THEME_OPTIONS.filter((option) => option.name !== 'auto'),
+        { name: 'stdout', label: 'std-out', scheme: 'light' },
+        { name: 'stdout-dark', label: 'std-out dark', scheme: 'dark' },
+        ...THEME_OPTIONS,
     ];
 
     let selectedTheme = $state(themeState().resolvedTheme());

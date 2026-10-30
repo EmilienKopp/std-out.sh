@@ -1,11 +1,11 @@
 /**
- * Tests for free-mode snapping (resources/js/lib/tecturn/free-drag.ts).
+ * Tests for free-mode snapping (resources/js/lib/stdout/free-drag.ts).
  *
  * Run with: npm run test:js
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { snapAxis } from '../resources/js/lib/tecturn/free-drag.ts';
+import { snapAxis } from '../resources/js/lib/stdout/free-drag.ts';
 
 test('snaps the leading edge to the 5% margin', () => {
     const result = snapAxis(5.8, 30);

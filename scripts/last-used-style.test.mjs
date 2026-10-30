@@ -1,6 +1,6 @@
 /**
  * Tests for the last-used style core
- * (resources/js/lib/tecturn/last-used-style-core.ts).
+ * (resources/js/lib/stdout/last-used-style-core.ts).
  *
  * Run with: npm run test:js
  *
@@ -15,7 +15,7 @@ import {
     emptyLastUsed,
     mergeStoredLastUsed,
     resolveNewBlockStyle,
-} from '../resources/js/lib/tecturn/last-used-style-core.ts';
+} from '../resources/js/lib/stdout/last-used-style-core.ts';
 
 const branding = (overrides = {}) => ({
     background: '#ffffff',

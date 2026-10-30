@@ -11,7 +11,7 @@ use Arkitect\RuleBuilders\Architecture\Architecture;
 use Arkitect\Rules\Rule;
 
 /**
- * Architectural rules for lecturn.
+ * Architectural rules for std-out.
  *
  * Encodes the pragmatic CQRS layering described in ARCHITECTURE.md:
  *
