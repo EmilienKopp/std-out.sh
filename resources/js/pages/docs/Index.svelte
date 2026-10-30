@@ -241,7 +241,7 @@
                 <li>
                     <strong class="text-foreground">Rehearse</strong>: adds a
                     start/pause/stop timer. Hit Stop and the run is saved to the
-                    <strong class="text-foreground">Rehearsals</strong>
+                    <strong class="text-foreground">Tests</strong>
                     page in the sidebar, together with a frozen snapshot of the deck.
                     Open a run there to replay the slides as they were, see the time
                     per slide, download the snapshot as JSON, or create a new deck
