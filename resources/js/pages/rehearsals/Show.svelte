@@ -19,12 +19,12 @@
     import FilePlus from 'lucide-svelte/icons/file-plus';
     import MessageSquare from 'lucide-svelte/icons/message-square';
     import AppHead from '@/components/AppHead.svelte';
-    import RehearsalReplay from '@/components/tecturn/RehearsalReplay.svelte';
+    import RehearsalReplay from '@/components/stdout/RehearsalReplay.svelte';
     import { Button } from 'daisy-svelte';
     import {
         shownSlideNotes,
         shownSlideTitles,
-    } from '@/lib/tecturn/flow-compiler';
+    } from '@/lib/stdout/flow-compiler';
     import { store as storeDeckFromSnapshot } from '@/routes/rehearsals/deck';
     import { store as storeReviewRequest } from '@/routes/rehearsals/reviews';
     import { index as reviewsIndex } from '@/routes/reviews';

@@ -80,7 +80,7 @@ Svelte component source (with <Transition> reveal order)
 
 ### 2. `@@N` flow-node parsing (on `feat/markdown`)
 
-- `resources/js/lib/tecturn/CodeGeneration/markdown.ts`
+- `resources/js/lib/stdout/CodeGeneration/markdown.ts`
 - `parseMarkdownSlide(markdown, slideId, branding) → ParsedMarkdownSlide`
   scans with `/ @@(\d+)$/` on trailing lines of headings, paragraphs, list
   items, quotes, images, code fences. Each marked construct becomes a `Block`
@@ -91,7 +91,7 @@ Svelte component source (with <Transition> reveal order)
 
 ### 3. Inline formatting sanitizer (live on main)
 
-- `resources/js/lib/tecturn/CodeGeneration/sanitize.ts`
+- `resources/js/lib/stdout/CodeGeneration/sanitize.ts`
 - `sanitizeInlineHtml(html)` — DOM-free, allowlist only: `span` (validated
   style), `b`, `strong`, `i`, `em`, `br`. `stripInlineFormatting(html)` is the
   clear-formatting escape hatch.

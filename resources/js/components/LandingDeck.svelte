@@ -2,7 +2,7 @@
     import { Code, Presentation, Slide } from '@animotion/core';
     import '@animotion/core/theme';
     import { onMount } from 'svelte';
-    import FloatingReactions from '@/components/tecturn/FloatingReactions.svelte';
+    import FloatingReactions from '@/components/stdout/FloatingReactions.svelte';
 
     // The landing hero is a hand-written Animotion deck, not a Presenter
     // instance — the marketing copy lives here as slides, and the deck runs
@@ -99,7 +99,7 @@
                 <h1
                     class="font-display text-[9cqw] leading-none font-bold tracking-tight text-[#19191c]"
                 >
-                    Tecturn<span class="text-[#d97e0a]">.</span>
+                    std-out<span class="text-[#d97e0a]">.</span>
                 </h1>
                 <p class="text-[3.2cqw] text-[#65656d]">
                     Your path to the stage.

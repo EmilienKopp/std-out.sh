@@ -27,12 +27,12 @@ return [
     | Admin Domain
     |--------------------------------------------------------------------------
     |
-    | When set (e.g. "admin.tecturn.dev"), the admin routes are served on this
+    | When set (e.g. "admin.std-out.sh"), the admin routes are served on this
     | dedicated subdomain via Route::domain(). When null, they fall back to a
     | "/admin" path prefix, which is convenient for local development.
     |
     | Sharing the WorkOS session across the subdomain and the main app requires
-    | SESSION_DOMAIN to be set to the parent domain (e.g. ".tecturn.dev").
+    | SESSION_DOMAIN to be set to the parent domain (e.g. ".std-out.sh").
     |
     */
 

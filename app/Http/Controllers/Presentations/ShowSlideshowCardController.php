@@ -26,7 +26,7 @@ class ShowSlideshowCardController extends Controller
         $png = Cache::remember($cacheKey, 3600, fn (): string => PresentationCardPng::render(
             $presentation->name,
             $presentation->content['slides'][0]['background'] ?? null,
-            config('app.name', 'Tecturn'),
+            config('app.name', 'std-out'),
         ));
 
         return response($png, 200, [

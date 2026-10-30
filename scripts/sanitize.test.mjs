@@ -1,6 +1,6 @@
 /**
  * Tests for the inline-HTML sanitizer
- * (resources/js/lib/tecturn/CodeGeneration/sanitize.ts).
+ * (resources/js/lib/stdout/CodeGeneration/sanitize.ts).
  *
  * Run with: npm run test:js
  *
@@ -11,7 +11,7 @@ import test from 'node:test';
 import {
     sanitizeInlineHtml,
     stripInlineFormatting,
-} from '../resources/js/lib/tecturn/CodeGeneration/sanitize.ts';
+} from '../resources/js/lib/stdout/CodeGeneration/sanitize.ts';
 
 test('sanitizeInlineHtml keeps allowlisted markup', () => {
     assert.equal(

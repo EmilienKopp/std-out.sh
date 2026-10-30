@@ -3,13 +3,13 @@
  *
  * Reads `{ format, content, flow }` as JSON from stdin and writes the export artifact
  * to stdout. The Svelte source generation lives exclusively in
- * resources/js/lib/tecturn/codegen.ts (shared with the frontend editor) — this
+ * resources/js/lib/stdout/codegen.ts (shared with the frontend editor) — this
  * script only orchestrates around it.
  *
  * Formats:
  *   - "svelte":         the generated Animotion Svelte source, as-is.
  *   - "web-component":  the source compiled as a custom element
- *                       (<tecturn-presentation>) and bundled by Vite into a
+ *                       (<stdout-presentation>) and bundled by Vite into a
  *                       single self-contained IIFE script (Animotion inlined,
  *                       CSS injected at runtime).
  */
@@ -68,7 +68,7 @@ async function buildWebComponent(source, tag, fontFaceCss = '') {
     // The entry must live inside the project so `@animotion/core` resolves.
     const cacheDir = path.join(root, 'node_modules', '.cache');
     fs.mkdirSync(cacheDir, { recursive: true });
-    const tmpDir = fs.mkdtempSync(path.join(cacheDir, 'tecturn-export-'));
+    const tmpDir = fs.mkdtempSync(path.join(cacheDir, 'stdout-export-'));
     const entry = path.join(tmpDir, 'Presentation.svelte');
 
     try {
@@ -99,7 +99,7 @@ async function buildWebComponent(source, tag, fontFaceCss = '') {
                 lib: {
                     entry,
                     formats: ['iife'],
-                    name: 'TecturnPresentation',
+                    name: 'StdoutPresentation',
                     fileName: () => 'presentation.js',
                     cssFileName: 'presentation',
                 },
@@ -134,9 +134,9 @@ try {
 
     // Node 22.18+ runs TypeScript directly via type stripping.
     const { generatePresentationSvelte } =
-        await import('../resources/js/lib/tecturn/codegen.ts');
+        await import('../resources/js/lib/stdout/codegen.ts');
     const { usedFonts } = await import(
-        '../resources/js/lib/tecturn/fonts.ts'
+        '../resources/js/lib/stdout/fonts.ts'
     );
 
     switch (format) {
@@ -154,7 +154,7 @@ try {
                     generatePresentationSvelte(content, flow ?? null, {
                         fonts: 'none',
                     }),
-                    tag ?? 'tecturn-presentation',
+                    tag ?? 'stdout-presentation',
                     embedFontFaceCss(content, usedFonts),
                 ),
             );

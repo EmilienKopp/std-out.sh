@@ -5,7 +5,7 @@
         BRANDING_KEYS,
         BRANDING_LABELS,
         brandingColorsFromTheme,
-    } from '@/lib/tecturn/branding';
+    } from '@/lib/stdout/branding';
     import { THEME_OPTIONS, themeState } from '@/lib/theme.svelte';
     import type { ThemeOption } from '@/lib/theme.svelte';
     import type { BrandingColors } from '@/types/auth';

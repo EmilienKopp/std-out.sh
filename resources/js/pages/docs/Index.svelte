@@ -2,8 +2,8 @@
     import { Link, page } from '@inertiajs/svelte';
     import AppHead from '@/components/AppHead.svelte';
     import DocsQuickStartDeck from '@/components/docs/DocsQuickStartDeck.svelte';
-    import PresenterDock from '@/components/tecturn/PresenterDock.svelte';
-    import RehearsalDock from '@/components/tecturn/RehearsalDock.svelte';
+    import PresenterDock from '@/components/stdout/PresenterDock.svelte';
+    import RehearsalDock from '@/components/stdout/RehearsalDock.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard, home, login } from '@/routes';
     import type { Team } from '@/types';
@@ -54,7 +54,7 @@
                 href={toUrl(home())}
                 class="font-display text-lg font-semibold tracking-tight"
             >
-                Tecturn<span class="text-amber-500">.</span>
+                std-out<span class="text-amber-500">.</span>
                 <span class="ml-2 text-sm font-normal text-muted-foreground">
                     Docs
                 </span>
@@ -80,7 +80,7 @@
     <main class="mx-auto flex w-full max-w-4xl flex-col gap-14 px-6 py-10">
         <div class="flex flex-col gap-4">
             <h1 class="font-display text-3xl font-bold tracking-tight">
-                How Tecturn works
+                How std-out works
             </h1>
             <p class="max-w-2xl text-muted-foreground">
                 From empty deck to live talk in four steps. The stage below is a
@@ -212,7 +212,7 @@
                     aria-hidden="true"
                 >
                     <PresenterDock
-                        viewerUrl="https://tecturn.app/present/demo"
+                        viewerUrl="https://stdout.app/present/demo"
                         talkSettings={demoTalkSettings}
                         slideCount={12}
                         currentSlide={3}

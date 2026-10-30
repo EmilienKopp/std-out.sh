@@ -10,10 +10,10 @@
     import MessageSquare from 'lucide-svelte/icons/message-square';
     import AppHead from '@/components/AppHead.svelte';
     import Heading from '@/components/Heading.svelte';
-    import RehearsalReplay from '@/components/tecturn/RehearsalReplay.svelte';
+    import RehearsalReplay from '@/components/stdout/RehearsalReplay.svelte';
     import { Button } from 'daisy-svelte';
     import UserAvatar from '@/components/UserAvatar.svelte';
-    import { shownSlideTitles } from '@/lib/tecturn/flow-compiler';
+    import { shownSlideTitles } from '@/lib/stdout/flow-compiler';
     import { complete as completeRoute } from '@/routes/reviews';
     import { store as storeComment } from '@/routes/reviews/comments';
     import type { FlowGraph, PresentationContent } from '@/types/generated';

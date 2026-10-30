@@ -1,5 +1,5 @@
 /**
- * Tests for the slide background helper (resources/js/lib/tecturn/background.ts).
+ * Tests for the slide background helper (resources/js/lib/stdout/background.ts).
  *
  * Run with: npm run test:js
  */
@@ -9,7 +9,7 @@ import {
     buildLinearGradient,
     isGradientBackground,
     parseLinearGradient,
-} from '../resources/js/lib/tecturn/background.ts';
+} from '../resources/js/lib/stdout/background.ts';
 
 test('isGradientBackground detects CSS gradient functions', () => {
     assert.equal(

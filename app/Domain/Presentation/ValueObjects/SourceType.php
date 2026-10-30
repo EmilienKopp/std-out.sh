@@ -6,7 +6,7 @@ namespace App\Domain\Presentation\ValueObjects;
 
 /**
  * Where a presentation's slides come from. `Editor` decks are built in the
- * Tecturn editor and rendered from stored content + flow. External decks bring
+ * std-out editor and rendered from stored content + flow. External decks bring
  * their own slides (an uploaded PDF or an embedded Google Slides deck) and only
  * reuse the live layer (dock, translation, footer).
  */

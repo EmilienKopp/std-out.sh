@@ -1,4 +1,4 @@
-# Lecturn — Requirements Document
+# std-out — Requirements Document
 
 > A web-native presentation platform. Author slides in the browser, present from your account, and ship to your own website as a self-contained embeddable component.
 
@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-Lecturn is a browser-based slide authoring and hosting platform. Users compose presentations visually through a constrained layout system, present them directly from lecturn.io, and optionally export or embed them anywhere on the web — including custom websites, Webflow, Framer, or plain HTML pages.
+std-out is a browser-based slide authoring and hosting platform. Users compose presentations visually through a constrained layout system, present them directly from std-out.sh, and optionally export or embed them anywhere on the web — including custom websites, Webflow, Framer, or plain HTML pages.
 
 The Animotion/Svelte rendering engine powers the output but is an invisible implementation detail. Users never write code.
 
@@ -19,7 +19,7 @@ The core value proposition is **ownership and portability**: your presentations 
 - Author presentations in a good-enough visual editor (not competing with Google Slides on features — competing on output quality and ownership)
 - MINIMALISM is a design principle: no unnecessary UI, no unnecessary features, no unnecessary complexity
 - The slides you design are also meant to be MINIMALISTIC (no giant walls of text or images) -> that's part of the value proposition: A tool that does minimalism well, not a tool that does everything poorly
-- Host and present directly from lecturn.io with no export required
+- Host and present directly from std-out.sh with no export required
 - Export as a self-contained embeddable web component (script tag, works anywhere)
 - Store all state as portable JSON (import/export at any time)
 - Ship compiled output via CDN — no iframe, no external dependency at embed time
@@ -41,11 +41,11 @@ The core value proposition is **ownership and portability**: your presentations 
 
 | Tier       | Description                                                                     |
 | ---------- | ------------------------------------------------------------------------------- |
-| **Free**   | Author and present from lecturn.io. Presentations live at `lecturn.io/p/{slug}` |
+| **Free**   | Author and present from std-out.sh. Presentations live at `std-out.sh/p/{slug}` |
 | **Pro**    | Embed script export, custom slug, presentations hosted on your own domain       |
 | **Studio** | Multiple presentations, client delivery, white-label embed (agency use)         |
 
-The free tier is a fully functional presenting tool — the upgrade reason is portability, which is philosophically aligned with why the target user chose Lecturn over Google Slides in the first place.
+The free tier is a fully functional presenting tool — the upgrade reason is portability, which is philosophically aligned with why the target user chose std-out over Google Slides in the first place.
 
 ---
 
@@ -98,7 +98,7 @@ Blocks are placed into layout slots. Each slot can contain one or more blocks st
 
 ## 6. Presenting
 
-- Presentations are hosted at `lecturn.io/p/{slug}` on the free tier
+- Presentations are hosted at `std-out.sh/p/{slug}` on the free tier
 - Fullscreen presentation mode with keyboard navigation (arrow keys, spacebar)
 - Transition steps advance on keypress, matching Animotion's default behaviour
 - Shareable link — no account required to view
@@ -161,22 +161,22 @@ The canonical source of truth. All editor state is serialised to and from this f
 
 ## 8. Compilation Pipeline
 
-Lecturn's backend compiles JSON into a Svelte component, then builds it into a self-contained web component bundle using the Svelte compiler's custom element output.
+std-out's backend compiles JSON into a Svelte component, then builds it into a self-contained web component bundle using the Svelte compiler's custom element output.
 
 ```
-Lecturn JSON
+std-out JSON
   → Svelte codegen (server-side)
   → Svelte compiler (customElement: true)
   → Self-contained JS bundle
-  → CDN-hosted at lecturn.io/embed/{id}.js
+  → CDN-hosted at std-out.sh/embed/{id}.js
 ```
 
 ### 8.1 Embed Output
 
 ```html
 <!-- Drop anywhere: Webflow, Framer, plain HTML, WordPress, etc. -->
-<script src="https://lecturn.io/embed/abc123.js"></script>
-<lecturn-presentation id="abc123" />
+<script src="https://std-out.sh/embed/abc123.js"></script>
+<stdout-presentation id="abc123" />
 ```
 
 - No iframe — a real web component
@@ -252,7 +252,7 @@ The intermediate Svelte representation uses Animotion components:
 
 ## 11. Future Considerations (Post-v1)
 
-- CLI: `lecturn build presentation.json` for local compile without the editor
+- CLI: `std-out build presentation.json` for local compile without the editor
 - Freeform "canvas" layout mode with absolute positioning
 - Custom layout builder
 - Theme system / design tokens

@@ -5,9 +5,9 @@
     import SendMessageController from '@/actions/App/Http/Controllers/Presentations/SendMessageController';
     import SendReactionController from '@/actions/App/Http/Controllers/Presentations/SendReactionController';
     import AppHead from '@/components/AppHead.svelte';
-    import FloatingReactions from '@/components/tecturn/FloatingReactions.svelte';
+    import FloatingReactions from '@/components/stdout/FloatingReactions.svelte';
     import { getEcho, setPresenceIdentity } from '@/lib/echo';
-    import { beaconPost } from '@/lib/tecturn/beacon';
+    import { beaconPost } from '@/lib/stdout/beacon';
 
     let {
         presentationName,
@@ -131,7 +131,7 @@
     }
 
     onMount(() => {
-        const key = 'tecturn:viewerId';
+        const key = 'stdout:viewerId';
         viewerId = sessionStorage.getItem(key) ?? crypto.randomUUID();
         sessionStorage.setItem(key, viewerId);
 

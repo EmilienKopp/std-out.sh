@@ -24,7 +24,7 @@
             href={toUrl('/')}
             class="font-display text-xl font-semibold tracking-tight select-none"
         >
-            Tecturn<span class="text-[hsl(37_91%_55%)]">.</span>
+            std-out<span class="text-[hsl(37_91%_55%)]">.</span>
         </Link>
         <Link
             href={toUrl(login())}
@@ -41,7 +41,7 @@
                     Request beta access
                 </h1>
                 <p class="mt-2 text-sm text-[hsl(40_15%_75%)]">
-                    Tecturn is in private beta. Leave your details and we'll let
+                    std-out is in private beta. Leave your details and we'll let
                     you in as spots open up.
                 </p>
             </div>

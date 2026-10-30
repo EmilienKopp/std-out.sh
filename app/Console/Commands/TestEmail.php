@@ -21,8 +21,8 @@ class TestEmail extends Command
         $this->info("Sending test email to {$to} via mailer [".config('mail.default').']...');
 
         try {
-            Mail::raw('This is a test email from Tecturn sent at '.now()->toDateTimeString().'.', function ($message) use ($to) {
-                $message->to($to)->subject('Tecturn test email');
+            Mail::raw('This is a test email from std-out sent at '.now()->toDateTimeString().'.', function ($message) use ($to) {
+                $message->to($to)->subject('std-out test email');
             });
         } catch (\Throwable $e) {
             $this->error('Failed: '.$e->getMessage());

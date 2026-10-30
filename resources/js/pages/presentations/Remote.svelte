@@ -8,7 +8,7 @@
         defaultFlowFromContent,
         enabledSlideIds,
         migrateLegacyTransitions,
-    } from '@/lib/tecturn/flow-compiler';
+    } from '@/lib/stdout/flow-compiler';
     import type { FlowGraph, PresentationContent } from '@/types/generated';
 
     let {

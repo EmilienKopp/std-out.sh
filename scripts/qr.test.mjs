@@ -1,5 +1,5 @@
 /**
- * Tests for the QR generator (resources/js/lib/tecturn/CodeGeneration/qr.ts)
+ * Tests for the QR generator (resources/js/lib/stdout/CodeGeneration/qr.ts)
  * and the codegen QR block renderer.
  *
  * Run with: npm run test:js
@@ -9,12 +9,12 @@
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { QrRenderer } from '../resources/js/lib/tecturn/CodeGeneration/plugins/blocks.ts';
+import { QrRenderer } from '../resources/js/lib/stdout/CodeGeneration/plugins/blocks.ts';
 import {
     QR_SIZE_CQW,
     normalizeQrSize,
     qrToSvg,
-} from '../resources/js/lib/tecturn/CodeGeneration/qr.ts';
+} from '../resources/js/lib/stdout/CodeGeneration/qr.ts';
 
 test('qrToSvg emits a self-contained svg with modules', () => {
     const svg = qrToSvg('https://example.com');

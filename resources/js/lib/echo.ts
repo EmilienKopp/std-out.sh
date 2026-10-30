@@ -1,6 +1,6 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-import { csrfToken } from '@/lib/tecturn/beacon';
+import { csrfToken } from '@/lib/stdout/beacon';
 
 let instance: Echo<'reverb'> | null = null;
 

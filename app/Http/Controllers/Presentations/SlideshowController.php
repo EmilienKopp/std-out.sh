@@ -26,7 +26,7 @@ class SlideshowController extends Controller
             'sourcePdfUrl' => $presentation->sourcePdfUrl(),
         ])->withViewData([
             'metaTitle' => $presentation->name,
-            'metaDescription' => "A {$slideCount}-slide presentation on ".config('app.name', 'Tecturn').'.',
+            'metaDescription' => "A {$slideCount}-slide presentation on ".config('app.name', 'std-out').'.',
             'metaImage' => route('presentations.card', ['presentation' => $presentation->embed_token]),
         ]);
     }

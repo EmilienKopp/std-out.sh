@@ -49,7 +49,7 @@ class Branding
 
     /**
      * Matches the exact `linear-gradient(...)` shape the editor's gradient
-     * builder emits (buildLinearGradient in resources/js/lib/tecturn/background.ts):
+     * builder emits (buildLinearGradient in resources/js/lib/stdout/background.ts):
      * an integer angle and two to four hex stops. Only the background slot may
      * hold one; it doubles as the default background of new slides.
      */

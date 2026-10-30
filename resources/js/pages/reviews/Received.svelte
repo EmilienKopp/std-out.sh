@@ -15,10 +15,10 @@
     import Timer from 'lucide-svelte/icons/timer';
     import AppHead from '@/components/AppHead.svelte';
     import Heading from '@/components/Heading.svelte';
-    import RehearsalReplay from '@/components/tecturn/RehearsalReplay.svelte';
+    import RehearsalReplay from '@/components/stdout/RehearsalReplay.svelte';
     import { Button } from 'daisy-svelte';
     import UserAvatar from '@/components/UserAvatar.svelte';
-    import { shownSlideTitles } from '@/lib/tecturn/flow-compiler';
+    import { shownSlideTitles } from '@/lib/stdout/flow-compiler';
     import { received } from '@/routes/reviews';
     import type { FlowGraph, PresentationContent } from '@/types/generated';
 

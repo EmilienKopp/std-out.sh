@@ -14,7 +14,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('deck:generate {team : Team slug or id} {--file= : Path to a markdown plan file (omit to read from stdin)} {--name= : Deck name (defaults to the generated title)}')]
-#[Description('Generate a Tecturn deck from a markdown plan using the Deckster agent.')]
+#[Description('Generate a std-out deck from a markdown plan using the Deckster agent.')]
 class GenerateDeckCommand extends Command
 {
     public function handle(RequestDeckDraft $requestDraft, GenerateDeckFromPlan $generateDeck): int

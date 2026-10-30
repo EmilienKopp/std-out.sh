@@ -4,7 +4,7 @@
 
 The slide editor originally exported presentations only via a frontend pipeline: `codegen.ts → downloadFile()`. The backend Presenter port adds:
 
-1. **"Export Web Component"** — PHP → Node.js subprocess → Vite build (`@sveltejs/vite-plugin-svelte` with `customElement: true`) → self-contained IIFE `.js` registering `<lecturn-presentation>`, embeddable in any site/Webflow
+1. **"Export Web Component"** — PHP → Node.js subprocess → Vite build (`@sveltejs/vite-plugin-svelte` with `customElement: true`) → self-contained IIFE `.js` registering `<stdout-presentation>`, embeddable in any site/Webflow
 2. Foundation for a future **"Export PDF"** (PHP → Node → Playwright)
 3. A clean `Presenter` interface so all export types share the same port
 
@@ -12,7 +12,7 @@ The frontend "Export Svelte" button is unchanged and stays client-side.
 
 ## Single Source of Truth
 
-**The Svelte generation logic lives only in `resources/js/lib/lecturn/codegen.ts`.** There is no PHP port. Both consumers use the same module:
+**The Svelte generation logic lives only in `resources/js/lib/stdout/codegen.ts`.** There is no PHP port. Both consumers use the same module:
 
 - The editor imports it directly for the client-side "Export Svelte" download.
 - `scripts/present.mjs` imports it natively — Node ≥ 22.18 runs TypeScript via type stripping. To make this possible, `codegen.ts` imports `./layouts.ts` relatively (with extension) instead of via the `@/` alias, and `allowImportingTsExtensions` is enabled in `tsconfig.json`.
@@ -48,7 +48,7 @@ The `app/Presentation/` namespace (distinct from `app/Domain/Presentation/`) hos
 `scripts/present.mjs` reads `{ format, content }` from stdin and writes the artifact to stdout (errors → stderr, non-zero exit):
 
 - **`svelte`**: runs `generatePresentationSvelte(content)` and prints the source.
-- **`web-component`**: prepends `<svelte:options customElement="lecturn-presentation" />` to the generated source, writes it to a temp dir under `node_modules/.cache/`, and runs a programmatic Vite lib build (IIFE, `write: false`, `cssCodeSplit: false`). Extracted CSS is inlined via a small runtime `<style>` injector so the output is a single file. The `$app/environment` shim alias from `vite.config.ts` is replicated for Animotion's Transition component.
+- **`web-component`**: prepends `<svelte:options customElement="stdout-presentation" />` to the generated source, writes it to a temp dir under `node_modules/.cache/`, and runs a programmatic Vite lib build (IIFE, `write: false`, `cssCodeSplit: false`). Extracted CSS is inlined via a small runtime `<style>` injector so the output is a single file. The `$app/environment` shim alias from `vite.config.ts` is replicated for Animotion's Transition component.
 
 The whole web-component build takes **~1 second** (rolldown-powered Vite), so it runs synchronously in the request — no queue needed. Output is ~10 MB because Animotion's `Code` component pulls in the full Shiki highlighter; trimming that is a future optimization.
 
@@ -67,10 +67,10 @@ The export route requires `node` on the server and installed `node_modules` (inc
 `GET /embed/presentations/{embed_token}.js` (`presentations.embed`) serves the web-component build directly for `<script src>` embedding on external sites:
 
 ```html
-<script src="https://lecturn.example/embed/presentations/{token}.js"></script>
-<lecturn-deck-{first-8-of-token}
+<script src="https://std-out.sh/embed/presentations/{token}.js"></script>
+<stdout-deck-{first-8-of-token}
     style="display: block; width: 100%; aspect-ratio: 16 / 9"
-></lecturn-deck-{first-8-of-token}>
+></stdout-deck-{first-8-of-token}>
 ```
 
 Two embed-specific compile details (both handled by the "Copy Embed" snippet):
@@ -85,7 +85,7 @@ Two embed-specific compile details (both handled by the "Copy Embed" snippet):
 - **Lazy generation**: first request materializes `storage/app/embeds/{token}.js` (write-to-temp + rename, so concurrent readers never see a partial file); later requests serve from disk with `Cache-Control: public, max-age=300`.
 - **Save refresh**: `UpdatePresentation` dispatches `PresentationContentReplaced` (only when content changed, not on rename); the `RefreshPresentationEmbed` listener regenerates the file **only if it already exists** — decks nobody embeds never pay the build cost. The listener runs synchronously (~1s added to save); make it `ShouldQueue` once a queue worker exists.
 
-**Per-presentation custom element tag** — embeds use `lecturn-deck-{lowercased first 8 chars of token}` instead of the shared `lecturn-presentation` tag, so two decks on one page don't collide on `customElements.define()`. The tag is passed to `scripts/present.mjs` via the optional `tag` field (plumbed through `NodePresenter` / `PresenterFactory::make($format, $customElementTag)`).
+**Per-presentation custom element tag** — embeds use `stdout-deck-{lowercased first 8 chars of token}` instead of the shared `stdout-presentation` tag, so two decks on one page don't collide on `customElements.define()`. The tag is passed to `scripts/present.mjs` via the optional `tag` field (plumbed through `NodePresenter` / `PresenterFactory::make($format, $customElementTag)`).
 
 **View note** — `embed_token` was added to `presentations_view` (the `.sql` file), and the add-column migration is deliberately timestamped *before* the view-creation migration so fresh databases (tests) replay in a valid order.
 
@@ -102,4 +102,4 @@ Nothing else changes — the port is open.
 
 - `php artisan test --compact tests/Feature/Presentations/ExportPresentationTest.php` — both formats end-to-end (real Node subprocess), invalid format 422, cross-team 404
 - `php artisan test --compact tests/Feature/Presentations/EmbedPresentationTest.php` — guest access, lazy generation, cached serving, save-refresh (only when file exists), unknown token 404, token generation
-- Manual: editor toolbar → "Export Web Component" → downloaded `.js` defines `<lecturn-presentation>` when loaded via `<script src>`
+- Manual: editor toolbar → "Export Web Component" → downloaded `.js` defines `<stdout-presentation>` when loaded via `<script src>`

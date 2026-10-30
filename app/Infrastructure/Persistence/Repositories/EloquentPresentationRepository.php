@@ -117,7 +117,7 @@ class EloquentPresentationRepository implements PresentationRepository
             throw new RuntimeException("Failed to download image from {$url} (status {$response->status()}).");
         }
 
-        $temporaryPath = tempnam(sys_get_temp_dir(), 'lecturn-import-');
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'stdout-import-');
         file_put_contents($temporaryPath, $response->body());
 
         try {

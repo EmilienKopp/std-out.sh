@@ -5,15 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         @php
-            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'Tecturn').' - Where developers get on stage';
-            $metaDescription = ($metaDescription ?? null) ?: 'Tecturn helps developers get on stage: shape your talk, rehearse timed runs, trade reviews with the speakers you follow, and go live to a room that talks back.';
+            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'std-out').' - Where developers get on stage';
+            $metaDescription = ($metaDescription ?? null) ?: 'std-out helps developers get on stage: shape your talk, rehearse timed runs, trade reviews with the speakers you follow, and go live to a room that talks back.';
             $metaImage = ($metaImage ?? null) ?: url('/og-image.png');
         @endphp
 
         <meta name="description" content="{{ $metaDescription }}">
 
         <meta property="og:type" content="website">
-        <meta property="og:site_name" content="{{ config('app.name', 'Tecturn') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'std-out') }}">
         <meta property="og:title" content="{{ $metaTitle }}">
         <meta property="og:description" content="{{ $metaDescription }}">
         <meta property="og:url" content="{{ url()->current() }}">
@@ -35,7 +35,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Tecturn') }}</title>
+            <title>{{ config('app.name', 'std-out') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

@@ -24,7 +24,7 @@
         {
             icon: History,
             title: 'Rehearsals that remember',
-            body: 'A rehearsal timer with per-slide timings, for Tecturn decks, PDFs, or Google Slides. Every run saves a snapshot, ready to replay or compare to the live talk.',
+            body: 'A rehearsal timer with per-slide timings, for std-out decks, PDFs, or Google Slides. Every run saves a snapshot, ready to replay or compare to the live talk.',
         },
         {
             icon: Users,
@@ -80,7 +80,7 @@
         <span
             class="font-display text-xl font-semibold tracking-tight select-none"
         >
-            Tecturn<span class="text-[hsl(38_91%_55%)]">.</span>
+            std-out<span class="text-[hsl(38_91%_55%)]">.</span>
         </span>
         <nav class="flex items-center gap-4">
             <Link
@@ -134,7 +134,7 @@
 
         <section class="mt-6 mb-6 max-w-xl text-center">
             <p class="text-lg leading-relaxed text-[hsl(240_5%_75%)]">
-                Nobody gets on stage alone. Tecturn is the path from idea to
+                Nobody gets on stage alone. std-out is the path from idea to
                 stage: shape your talk, rehearse timed runs, trade
                 slide-by-slide reviews with the speakers you follow, then go
                 live to a room that talks back. The deck above is the product
@@ -209,7 +209,7 @@
     <footer
         class="px-6 py-3 text-center font-mono text-xs text-[hsl(240_4%_42%)]"
     >
-        Tecturn
+        std-out
     </footer>
 </div>
 

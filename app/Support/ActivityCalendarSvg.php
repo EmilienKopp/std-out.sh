@@ -155,11 +155,11 @@ class ActivityCalendarSvg
                 $height,
                 $width,
                 $height,
-                htmlspecialchars(sprintf('Tecturn activity of @%s: %s', $handle, $summary), ENT_XML1),
+                htmlspecialchars(sprintf('std-out activity of @%s: %s', $handle, $summary), ENT_XML1),
             ),
             sprintf('<rect width="%d" height="%d" rx="6" fill="%s"/>', $width, $height, self::BACKGROUND),
             sprintf(
-                '<text x="%d" y="20" font-size="12" font-weight="bold" fill="%s" %s>@%s<tspan fill="%s"> · Tecturn</tspan></text>',
+                '<text x="%d" y="20" font-size="12" font-weight="bold" fill="%s" %s>@%s<tspan fill="%s"> · std-out</tspan></text>',
                 self::PAD_LEFT,
                 self::TITLE_TEXT,
                 self::FONT,

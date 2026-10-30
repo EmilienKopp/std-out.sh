@@ -1,6 +1,6 @@
 /**
  * Tests for the block clipboard clone logic
- * (resources/js/lib/tecturn/block-clipboard.ts).
+ * (resources/js/lib/stdout/block-clipboard.ts).
  *
  * Run with: npm run test:js
  *
@@ -10,7 +10,7 @@
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { cloneBlockForPaste } from '../resources/js/lib/tecturn/block-clipboard.ts';
+import { cloneBlockForPaste } from '../resources/js/lib/stdout/block-clipboard.ts';
 
 const makeBlock = (overrides = {}) => ({
     id: 'block-source',

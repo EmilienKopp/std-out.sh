@@ -1,7 +1,7 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
-    import ExternalPresenter from '@/components/tecturn/ExternalPresenter.svelte';
-    import Presenter from '@/components/tecturn/Presenter.svelte';
+    import ExternalPresenter from '@/components/stdout/ExternalPresenter.svelte';
+    import Presenter from '@/components/stdout/Presenter.svelte';
     import type {
         FlowGraph,
         PresentationContent,

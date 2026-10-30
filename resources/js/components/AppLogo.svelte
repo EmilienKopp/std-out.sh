@@ -2,7 +2,7 @@
     import { page } from '@inertiajs/svelte';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
 
-    const appName = $derived((page.props.name as string) ?? 'Tecturn');
+    const appName = $derived((page.props.name as string) ?? 'std-out');
 </script>
 
 <div
