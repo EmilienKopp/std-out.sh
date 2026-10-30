@@ -28,7 +28,7 @@ test('the activity graph renders as an svg for a known handle', function () {
         ->toContain('<svg')
         ->toContain('@'.$user->handle)
         ->toContain('1 rehearsal')
-        ->toContain('#3a2a0e'); // level-1 amber cell
+        ->toContain('#0e2a14'); // level-1 green cell
 });
 
 test('legacy runs without a user_id are attributed via the personal team', function () {
@@ -44,7 +44,7 @@ test('legacy runs without a user_id are attributed via the personal team', funct
 
     $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
 
-    expect($response->getContent())->toContain('1 rehearsal')->toContain('#3a2a0e');
+    expect($response->getContent())->toContain('1 rehearsal')->toContain('#0e2a14');
 });
 
 test('talk event days render in the live emerald', function () {
@@ -56,7 +56,7 @@ test('talk event days render in the live emerald', function () {
 
     $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
 
-    expect($response->getContent())->toContain('#34d399')->toContain('1 talk on stage');
+    expect($response->getContent())->toContain('#fcc419')->toContain('1 talk on stage');
 });
 
 test('a delivered presentation session counts as a talk on stage', function () {
@@ -70,7 +70,7 @@ test('a delivered presentation session counts as a talk on stage', function () {
 
     $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
 
-    expect($response->getContent())->toContain('#34d399')->toContain('1 talk on stage');
+    expect($response->getContent())->toContain('#fcc419')->toContain('1 talk on stage');
 });
 
 test('a talk event with a session on the same day is not counted twice', function () {
@@ -120,7 +120,7 @@ test('a rehearsal outranks a deck created the same day', function () {
     $response = $this->get(route('profiles.graph', ['handle' => $user->handle]));
 
     expect($response->getContent())
-        ->toContain('#3a2a0e') // amber rehearsal cell wins the day
+        ->toContain('#0e2a14') // green rehearsal cell wins the day
         ->not->toContain('#3d3d42');
 });
 

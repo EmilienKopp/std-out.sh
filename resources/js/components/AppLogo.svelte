@@ -5,13 +5,14 @@
     const appName = $derived((page.props.name as string) ?? 'std-out');
 </script>
 
-<div
+<!-- <div
     class="flex aspect-square size-8 items-center justify-center rounded-md bg-background text-foreground"
 >
     <AppLogoIcon class="size-5 fill-current" />
-</div>
+</div> -->
 <div class="ml-1 grid flex-1 text-left text-sm">
-    <span class="mb-0.5 truncate font-display leading-tight font-semibold"
-        >{appName}</span
-    >
+    <span class="font-mono text-xl font-semibold tracking-tight select-none">
+        <span class="text-primary">$</span>
+        {appName}<span class="text-primary">.</span>
+    </span>
 </div>

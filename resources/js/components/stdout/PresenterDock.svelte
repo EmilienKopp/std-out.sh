@@ -127,6 +127,7 @@
 </script>
 
 <aside
+    data-theme="stdout-dark"
     class="flex h-full w-72 flex-col gap-4 overflow-y-auto bg-zinc-900 p-4 text-white"
     data-test="presenter-dock"
 >
@@ -237,7 +238,7 @@
                 aria-checked={showReactions}
                 aria-label="Show audience reactions on screen"
                 class="relative h-5 w-9 rounded-full transition-colors {showReactions
-                    ? 'bg-amber-500'
+                    ? 'bg-primary'
                     : 'bg-zinc-600'}"
                 onclick={() => (showReactions = !showReactions)}
                 data-test="dock-reactions-toggle"
@@ -251,7 +252,9 @@
         </div>
 
         {#if talkSettings.allowFreeText}
-            <div class="flex items-center justify-between border-t border-zinc-700 pt-3">
+            <div
+                class="flex items-center justify-between border-t border-zinc-700 pt-3"
+            >
                 <p
                     class="text-xs font-semibold uppercase tracking-wider text-zinc-400"
                 >
@@ -263,7 +266,7 @@
                     aria-checked={showMessages}
                     aria-label="Show audience messages on screen"
                     class="relative h-5 w-9 rounded-full transition-colors {showMessages
-                        ? 'bg-amber-500'
+                        ? 'bg-primary'
                         : 'bg-zinc-600'}"
                     onclick={() => (showMessages = !showMessages)}
                     data-test="dock-messages-toggle"

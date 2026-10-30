@@ -42,7 +42,7 @@
         value ? dateFormatter.format(new Date(value)) : '—';
 
     const statusStyles: Record<BetaRequestRow['status'], string> = {
-        pending: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+        pending: 'bg-warning/15 text-warning',
         approved: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
         rejected: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
     };
@@ -124,7 +124,7 @@
                                     class="flex flex-wrap items-center gap-1.5"
                                 >
                                     <span
-                                        class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold capitalize {statusStyles[
+                                        class="inline-flex rounded-full px-2 py-0.5 font-mono text-xs font-semibold uppercase {statusStyles[
                                             request.status
                                         ]}"
                                     >

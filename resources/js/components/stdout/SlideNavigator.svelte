@@ -48,7 +48,7 @@
         deck.pace === 'over'
             ? 'text-red-500'
             : deck.pace === 'under'
-              ? 'text-amber-500'
+              ? 'text-warning'
               : 'text-emerald-600',
     );
 

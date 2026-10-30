@@ -484,7 +484,7 @@
         <aside class="flex flex-col gap-6">
             {#if followRequests.length > 0}
                 <section
-                    class="flex flex-col gap-3 rounded-xl border border-amber-500/40 bg-card p-5"
+                    class="flex flex-col gap-3 rounded-xl border border-primary/40 bg-card p-5"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <h2 class="text-sm font-semibold text-foreground">

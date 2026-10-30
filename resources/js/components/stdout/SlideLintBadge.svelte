@@ -16,7 +16,7 @@
         lint.verdict === 'over'
             ? 'bg-red-500'
             : lint.verdict === 'warn'
-              ? 'bg-amber-500'
+              ? 'bg-warning'
               : 'bg-emerald-500/70',
     );
 

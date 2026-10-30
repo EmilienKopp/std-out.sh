@@ -54,7 +54,7 @@
                 href={toUrl(home())}
                 class="font-display text-lg font-semibold tracking-tight"
             >
-                std-out<span class="text-amber-500">.</span>
+                std-out<span class="text-primary">.</span>
                 <span class="ml-2 text-sm font-normal text-muted-foreground">
                     Docs
                 </span>
@@ -96,7 +96,7 @@
                 {#each sections as section (section.id)}
                     <a
                         href="#{section.id}"
-                        class="rounded-full border border-border px-3 py-1 text-muted-foreground transition-colors hover:border-amber-500 hover:text-foreground"
+                        class="rounded-full border border-border px-3 py-1 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
                     >
                         {section.title}
                     </a>

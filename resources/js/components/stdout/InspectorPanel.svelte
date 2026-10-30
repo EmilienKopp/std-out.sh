@@ -68,7 +68,7 @@
         slideLint.verdict === 'over'
             ? 'text-red-500'
             : slideLint.verdict === 'warn'
-              ? 'text-amber-500'
+              ? 'text-warning'
               : 'text-muted-foreground',
     );
 
@@ -76,7 +76,7 @@
         deckLint.pace === 'over'
             ? { label: 'Over target', class: 'text-red-500' }
             : deckLint.pace === 'under'
-              ? { label: 'Under target', class: 'text-amber-500' }
+              ? { label: 'Under target', class: 'text-warning' }
               : deckLint.pace === 'on'
                 ? { label: 'On target', class: 'text-emerald-600' }
                 : null,
@@ -481,7 +481,7 @@
                             class="flex h-8 w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border text-xs hover:bg-accent {uploadingBlockImage
                                 ? 'pointer-events-none opacity-60'
                                 : blockImageBroken || !block.src
-                                  ? 'border-amber-500 text-amber-600'
+                                  ? 'border-warning text-warning'
                                   : ''}"
                         >
                             {uploadingBlockImage

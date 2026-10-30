@@ -1,39 +1,32 @@
 <?php
 
-it('defaults to the onair light theme', function () {
+it('defaults to the stdout light theme', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('data-theme="onair"', false);
+        ->assertSee('data-theme="stdout"', false);
 });
 
-it('serves onair-dark with the dark class when appearance is dark', function () {
+it('serves stdout-dark with the dark class when appearance is dark', function () {
     $this->withUnencryptedCookie('appearance', 'dark')
         ->get('/')
         ->assertOk()
-        ->assertSee('data-theme="onair-dark"', false)
+        ->assertSee('data-theme="stdout-dark"', false)
         ->assertSee('class="dark"', false);
 });
 
-it('serves a fixed daisyui theme from the theme cookie', function () {
+it('ignores a pinned daisyui theme cookie from the pinned-theme era', function () {
     $this->withUnencryptedCookie('theme', 'dracula')
         ->get('/')
         ->assertOk()
-        ->assertSee('data-theme="dracula"', false)
-        ->assertSee('class="dark"', false);
-});
-
-it('never applies the dark class for a fixed light theme', function () {
-    $this->withUnencryptedCookie('theme', 'nord')
-        ->withUnencryptedCookie('appearance', 'dark')
-        ->get('/')
-        ->assertOk()
-        ->assertSee('data-theme="nord"', false)
+        ->assertSee('data-theme="stdout"', false)
         ->assertDontSee('class="dark"', false);
 });
 
-it('falls back to onair for an unknown theme cookie', function () {
-    $this->withUnencryptedCookie('theme', 'not-a-theme')
+it('ignores a legacy onair theme cookie and follows appearance', function () {
+    $this->withUnencryptedCookie('theme', 'onair-dark')
+        ->withUnencryptedCookie('appearance', 'dark')
         ->get('/')
         ->assertOk()
-        ->assertSee('data-theme="onair"', false);
+        ->assertSee('data-theme="stdout-dark"', false)
+        ->assertSee('class="dark"', false);
 });

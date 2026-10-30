@@ -204,9 +204,7 @@
         startedAtIso = new Date().toISOString();
         totalMs = 0;
         slideMs = {};
-        stepEvents = [
-            { at_ms: 0, slide: currentSlide, step: currentStep },
-        ];
+        stepEvents = [{ at_ms: 0, slide: currentSlide, step: currentStep }];
         trackedStepKey = `${currentSlide}:${currentStep}`;
         await startRecorder();
         status = 'running';
@@ -302,6 +300,7 @@
 </script>
 
 <aside
+    data-theme="stdout-dark"
     class="flex h-full w-72 flex-col gap-4 overflow-y-auto bg-zinc-900 p-4 text-white"
     data-test="rehearsal-dock"
 >
@@ -319,8 +318,7 @@
                     class="ml-auto flex items-center gap-1.5 normal-case text-red-400"
                     data-test="rehearsal-recording"
                 >
-                    <span
-                        class="h-2 w-2 animate-pulse rounded-full bg-red-500"
+                    <span class="h-2 w-2 animate-pulse rounded-full bg-red-500"
                     ></span>
                     Rec
                 </span>
@@ -362,15 +360,15 @@
         {#if status === 'idle'}
             <button
                 type="button"
-                class="flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-3 font-semibold text-zinc-950 transition-colors hover:bg-amber-400"
+                class="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 onclick={start}
                 data-test="rehearsal-start"
             >
                 <Play class="h-4 w-4" /> Start rehearsal
             </button>
             <p class="text-center text-xs text-zinc-500">
-                The clock, per-slide timings and voice recording only run
-                while started.
+                The clock, per-slide timings and voice recording only run while
+                started.
             </p>
         {:else if status === 'running' || status === 'paused'}
             <div class="flex gap-2">
@@ -386,7 +384,7 @@
                 {:else}
                     <button
                         type="button"
-                        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-3 font-semibold text-zinc-950 transition-colors hover:bg-amber-400"
+                        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                         onclick={resume}
                         data-test="rehearsal-resume"
                     >

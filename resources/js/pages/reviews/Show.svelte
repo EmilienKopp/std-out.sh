@@ -146,9 +146,9 @@
         </div>
         <div class="flex items-center gap-3">
             <span
-                class="rounded-full px-3 py-1 text-xs font-semibold {completed
+                class="rounded-full px-3 py-1 font-mono text-xs font-semibold uppercase {completed
                     ? 'bg-emerald-500/15 text-emerald-500'
-                    : 'bg-amber-500/15 text-amber-500'}"
+                    : 'bg-warning/15 text-warning'}"
                 data-test="review-status"
             >
                 {completed ? 'Completed' : 'Pending'}
@@ -248,7 +248,7 @@
                 <ul class="flex flex-col gap-2">
                     {#each currentSlideComments as comment (comment.id)}
                         <li
-                            class="rounded-lg border border-amber-500/60 bg-amber-500/10 p-2.5 text-sm"
+                            class="rounded-lg border border-warning/60 bg-warning/10 p-2.5 text-sm"
                             data-test="review-comment"
                         >
                             <p class="text-foreground">{comment.message}</p>
