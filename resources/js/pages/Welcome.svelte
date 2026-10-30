@@ -23,28 +23,28 @@
     const showcase = [
         {
             icon: History,
-            title: 'Rehearsals that remember',
-            body: 'A rehearsal timer with per-slide timings, for std-out decks, PDFs, or Google Slides. Every run saves a snapshot, ready to replay or compare to the live talk.',
+            title: 'Dry runs, logged',
+            body: 'A rehearsal timer with per-slide timings, for std-out decks, PDFs, or Google Slides. Every run is snapshotted, ready to replay or diff against the live talk.',
         },
         {
             icon: Users,
-            title: 'A circle of reviewers',
-            body: 'Reviews come from speakers who follow you. Send them a rehearsal and get slide-by-slide comments back, before the talk counts.',
+            title: 'Code review, for talks',
+            body: 'Reviews come from speakers who follow you. Send them a rehearsal and get slide-by-slide comments back, before the talk ships.',
         },
         {
             icon: Radio,
-            title: 'A room that talks back',
-            body: 'The audience scans a QR code and their reactions float across your slides live. Captions can translate you as you speak.',
+            title: 'A room that streams back',
+            body: 'The audience scans a QR code and their reactions pipe onto your slides live. Captions can translate you as you speak.',
         },
         {
             icon: Gauge,
-            title: 'A coach while you write',
-            body: 'Set a target length and every slide gets a speaking-time estimate while you build. The dense ones get flagged before you are on stage.',
+            title: 'A linter for your deck',
+            body: "Set a target length and every slide gets a speaking-time estimate while you build. The dense ones throw warnings before you're on stage.",
         },
     ];
 </script>
 
-<AppHead title="Where developers get on stage" />
+<AppHead title="The standard output for your talks" />
 
 {#snippet ctaButton()}
     {#if auth.user}
@@ -131,11 +131,11 @@
 
         <section class="mt-6 mb-6 max-w-xl text-center">
             <p class="text-lg leading-relaxed text-foreground/75">
-                Nobody gets on stage alone. std-out is the path from idea to
-                stage: shape your talk, rehearse timed runs, trade
-                slide-by-slide reviews with the speakers you follow, then go
-                live to a room that talks back. The deck above is the product
-                doing its own pitch.
+                A talk is a deploy, and std-out is its toolchain: write the
+                deck, dry-run it with timed rehearsals, put it through code
+                review with the speakers you follow, then ship it live to a room
+                that streams back. The deck above is the product doing its own
+                pitch.
             </p>
             {@render ctaButton()}
         </section>
@@ -150,9 +150,10 @@
             <p
                 class="mt-4 font-display text-2xl leading-snug font-semibold text-foreground sm:text-3xl"
             >
-                Get every developer with something to say onto a stage: a place
-                to shape and rehearse the talk, a circle of speakers who see it
-                before the room does, and an audience that talks back.
+                Get every developer with something to say onto a stage: a
+                pipeline to write and dry-run the talk, a review circle that
+                reads it before the room does, and an audience that streams
+                back.
             </p>
             <p class="mt-4">
                 <Link
@@ -195,7 +196,7 @@
             <p
                 class="font-display text-3xl font-bold tracking-tight text-foreground"
             >
-                Ready for your next talk<span class="text-primary">?</span>
+                Ready to ship your next talk<span class="text-primary">?</span>
             </p>
             {@render ctaButton()}
         </section>

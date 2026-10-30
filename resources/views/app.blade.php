@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         @php
-            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'std-out').' - Where developers get on stage';
-            $metaDescription = ($metaDescription ?? null) ?: 'std-out helps developers get on stage: shape your talk, rehearse timed runs, trade reviews with the speakers you follow, and go live to a room that talks back.';
+            $metaTitle = ($metaTitle ?? null) ?: config('app.name', 'std-out').' - The standard output for your talks';
+            $metaDescription = ($metaDescription ?? null) ?: 'A talk is a deploy, and std-out is its toolchain: write the deck, dry-run it with timed rehearsals, put it through code review with the speakers you follow, then ship it live to a room that streams back.';
             $metaImage = ($metaImage ?? null) ?: url('/og-image.png');
         @endphp
 
